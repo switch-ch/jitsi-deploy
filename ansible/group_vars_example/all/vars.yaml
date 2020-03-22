@@ -11,6 +11,8 @@ site24x7_proxy: NONE
 
 jitsi_last_n: 4
 
+# Which version of Jitsi to use
+jitsi_version: nightly
 
 
 
