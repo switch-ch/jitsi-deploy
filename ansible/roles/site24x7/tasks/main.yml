@@ -1,0 +1,76 @@
+---
+- name: Check linux server monitoring agent exists
+  stat:
+    path: /opt/site24x7/monagent
+  register: installed
+  tags:
+    - site24x7
+
+- name: Download 64 bit Site24x7 agent from public URL
+  get_url:
+    url: https://staticdownloads.site24x7.com/server/Site24x7_Linux_64bit.install
+    dest: /opt/Site24x7_Linux_64bit.install
+    mode: 0750
+  when: ansible_machine == "x86_64" and not installed.stat.exists
+  tags:
+    - site24x7
+
+- name : Install 64 bit Site24x7 agent in the server
+  shell: /opt/Site24x7_Linux_64bit.install -i -key={{ site24x7_device_key }} -installer=ansible
+  when: (ansible_machine == "x86_64" and site24x7_proxy == "NONE" and not installed.stat.exists)
+  tags:
+    - site24x7
+
+- name : Install 64 bit Site24x7 agent in the server
+  shell: /opt/Site24x7_Linux_64bit.install -i -key={{ site24x7_device_key }} -installer=ansible -proxy={{ site24x7_proxy }}
+  when: (ansible_machine == "x86_64" and site24x7_proxy != "NONE" and not installed.stat.exists)
+  tags:
+    - site24x7
+
+- service: name=site24x7monagent state=restarted
+  when: ansible_machine == "x86_64" and not installed.stat.exists
+  tags:
+    - site24x7
+
+- name: Download 32 bit Site24x7 agent from public URL
+  get_url:
+    url: https://staticdownloads.site24x7.com/server/Site24x7_Linux_32bit.install
+    dest: /opt/Site24x7_Linux_64bit.install
+    mode: 0750
+  when: ansible_machine == "i386" and not installed.stat.exists
+  tags:
+    - site24x7
+
+- name : Install 32 bit Site24x7 agent in the server
+  shell: /opt/Site24x7_Linux_32bit.install -i -key={{ site24x7_device_key }} -installer=ansible
+  when: (ansible_machine == "i386" and site24x7_proxy == "NONE" and not installed.stat.exists)
+  tags:
+    -site24x7
+
+- name : Install 32 bit Site24x7 agent in the server
+  shell: /opt/Site24x7_Linux_32bit.install -i -key={{ site24x7_device_key }} -installer=ansible -proxy={{ site24x7_proxy }}
+  when: (ansible_machine == "i386" and site24x7_proxy != "NONE" and not installed.stat.exists)
+  tags:
+    - site24x7
+
+- service: name=site24x7monagent state=restarted
+  when: ansible_machine == "i386" and not installed.stat.exists
+  tags:
+    - site24x7
+
+- name: Deleting 64 bit install file
+  file:
+    state: absent
+    path: /opt/Site24x7_Linux_64bit.install
+  when: ansible_machine == "x86_64" and not installed.stat.exists
+  tags:
+    - site24x7
+
+- name: Deleting 32 bit install file
+  file:
+    state: absent
+    path: /opt/Site24x7_Linux_32bit.install
+  when: ansible_machine == "i386"
+  tags:
+    - site24x7
+

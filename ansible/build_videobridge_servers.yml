@@ -1,0 +1,167 @@
+---
+###
+# Please specify following variables in ./host_vars/HOST/vars.yml (see videobridges.meet.example.com)
+# jitsi_vm_hostname: "jitsi-ORGANISATION"
+# jitsi_vm_rootvolume_name: "jitsi-ORGANISATION"
+# jitsi_vm_image: "Ubuntu Bionic 18.04 (SWITCHengines)"
+# jitsi_vm_flavor: "n1.large"
+# jitsi_vm_ssh_key: "bisig-rsa"
+#
+# jitsi_vb_vm_flavor: "m1.large"
+#
+###
+
+- name: Create and launch mailbox VM
+  hosts: localhost
+  tasks:
+  - name: Create security groupS - SSH, jitsi
+    os_security_group:
+      state: present
+      name: "{{ item }}"
+    loop:
+        - "SSH"
+        - "jitsi"
+  - name: Add ssh rule (IPv6)
+    os_security_group_rule:
+      security_group: "SSH"
+      protocol: tcp
+      port_range_min: 22
+      port_range_max: 22
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add ssh rule (IPv4)
+    os_security_group_rule:
+      security_group: "SSH"
+      protocol: tcp
+      port_range_min: 22
+      port_range_max: 22
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 10000 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 10000
+      port_range_max: 10000
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 10000 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 10000
+      port_range_max: 10000
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 10000 udp (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: udp
+      port_range_min: 10000
+      port_range_max: 10000
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 10000 udp (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: udp
+      port_range_min: 10000
+      port_range_max: 10000
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 4443 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 4443
+      port_range_max: 4443
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 4443 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 4443
+      port_range_max: 4443
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - icmp (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: icmp
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - icmp (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: icmp
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 80 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 80
+      port_range_max: 80
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 80 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 80
+      port_range_max: 80
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 443 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 443
+      port_range_max: 443
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 443 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 443
+      port_range_max: 443
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 5347 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 5347
+      port_range_max: 5347
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 5347 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 5347
+      port_range_max: 5347
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 5222 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 5222
+      port_range_max: 5222
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 5222 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 5222
+      port_range_max: 5222
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+
+  - name: Create all Videobridges
+    include_tasks: start_videobridges.yml
+    loop: "{{ groups['videobridge'] }}"

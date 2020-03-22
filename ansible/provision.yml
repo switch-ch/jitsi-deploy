@@ -1,0 +1,37 @@
+# Jitsi  deployment and configuration
+#
+#     ansible-galaxy install -fr roles/requirements.yml
+#
+---
+- name: configure server
+  hosts: jitsi
+  become: yes
+  vars:
+    videobridge_only: false
+  roles:
+    - users
+    - nginx
+    - shib
+    - role: jitsi
+      tags: jitsi
+    - site24x7
+
+- name: videobridge
+  hosts: videobridge
+  become: yes
+  vars:
+    videobridge_only: true
+  roles:
+    - users
+    - role: jitsi
+      tags: jitsi
+    - site24x7
+
+- name: setup view
+  hosts: view
+  become: yes
+  roles:
+    - users
+    - site24x7
+    - nginx
+    - view

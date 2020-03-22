@@ -1,0 +1,19 @@
+---
+
+jitsi_fqdn: meet.invisible.ch
+
+shibboleth_support_email: maps@switch.ch
+jitsi_shibboleth_entity: meet.invisible.ch
+
+jitsi_shib: false
+jitsi_version: nightly
+
+shib_use_wayf: false
+shib_entity_url: https://eduid.ch/idp/shibboleth
+
+callstats_io_appid: false
+callstats_io_secret: "{{ vault_callstats_io_secret }}"
+
+
+
+

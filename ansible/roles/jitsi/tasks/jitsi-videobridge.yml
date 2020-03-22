@@ -1,0 +1,77 @@
+---
+
+
+- name: Install jq
+  apt:
+    name: jq
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: videobridge_only
+
+
+
+- name: "Check if REST_API"
+  uri:
+    url: http://localhost:8080/colibri/stats
+  failed_when: false
+  register: colibristats
+
+- debug: msg="Page returned status - {{ colibristats.status }}"
+  when: colibristats.status is defined
+
+- name: Check the number of active conferences
+  uri:
+    url: http://localhost:8080/colibri/stats
+  register: conferences
+  failed_when: false
+  when: colibristats.status is defined and colibristats.status == 200 # needed to check if the stats are running.
+
+- debug: msg={{ conferences.json['conferences'] }}
+  when: conferences.json is defined
+
+- debug: msg={{ not ( conferences.json is defined and conferences.json['conferences'] == 0 ) }}
+  when: conferences.json is defined
+
+- debug: msg={{ not ( conferences.json is defined and conferences.json['conferences'] == 0 ) and not ( colibristats.status is defined and colibristats.status != 200 )  }}
+  when: conferences.json is defined
+
+- name: Generate a Fail when not restarted
+  fail:
+    msg: "Videobridge server was not restarted! Configs not applied!"
+  ignore_errors: yes
+  when: videobridge_only and ( not ( conferences.json is defined and conferences.json['conferences'] == 0 ) and not ( colibristats.status is defined and colibristats.status != 200 ) )
+
+#
+#- name: replace jitsi-videobridge.jar
+#  copy:
+#    src: jitsi-videobridge-2.1-SNAPSHOT.jar
+#    dest: /usr/share/jitsi-videobridge/jitsi-videobridge.jar
+#    owner: jvb
+#    group: jitsi
+#    mode: "0644"
+#  when: videobridge_only and (( conferences.json is defined and conferences.json['conferences'] == 0 ) or ( colibristats.status is defined and colibristats.status != 200 ))
+#  ignore_errors: yes
+#  notify: restart jitsi-videobridge
+
+- name: add videobridge config
+  become: yes
+  tags:
+    - conf
+  template:
+    src: sip-communicator.properties.j2
+    dest: /etc/jitsi/videobridge/sip-communicator.properties
+    mode: 0644
+  notify: restart jitsi-videobridge
+  when: videobridge_only
+
+- name: add videobridge default config
+  become: yes
+  tags:
+    - conf
+  template:
+    src: videobridge_config.j2
+    dest: /etc/jitsi/videobridge/config
+    mode: 0644
+  notify: restart jitsi-videobridge
+  when: videobridge_only

@@ -1,0 +1,7 @@
+---
+# Size / setting for creating Videobridge VMs
+
+jitsi_vb_vm_flavor: "c1.xlarge" # 8 VCPU / 8GB RAM
+jitsi_vb_ssh_key: "ssh_key"
+jitsi_vb_vm_network: "private"
+jitsi_vb_vm_image: "Ubuntu Bionic 18.04 (SWITCHengines)"

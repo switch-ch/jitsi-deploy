@@ -1,0 +1,56 @@
+---
+# Deploy the view component
+
+- name: view | copy view files
+  tags:
+    - view
+  copy:
+    src: public
+    dest: /usr/share/view
+
+# We don't distribute our webfonts directory and styles, so it's on the server and we link it
+# here. You will need to come up with your own solution for styles
+
+- name: Link the webfonts directory
+  file:
+    src: /usr/share/view/webfonts
+    dest: /usr/share/view/public/webfonts
+    state: link
+  tags:
+    - view
+
+- name: link the packages.css file
+  file:
+    src: /usr/share/view/css/package.css
+    dest: /usr/share/view/public/css/package.css
+    state: link
+  tags:
+    - view
+    -
+- name: link the scripts.js file
+  file:
+    src: /usr/share/view/js/scripts.min.js
+    dest: /usr/share/view/public/js/scripts.min.js
+    state: link
+  tags:
+    - view
+
+- name: view | set viewer nginx config
+  tags:
+    - conf
+    - view
+  template:
+    src: nginx-view.conf.j2
+    dest: /etc/nginx/sites-available/view.example.com.conf
+    mode: 0644
+  notify: reload nginx
+
+
+- name: view | enable site
+  file:
+    src: /etc/nginx/sites-available/view.example.com.conf
+    dest: /etc/nginx/sites-enabled/view.example.com.conf
+    state: link
+  tags:
+    - conf
+    - view

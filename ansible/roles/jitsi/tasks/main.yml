@@ -1,0 +1,70 @@
+---
+
+
+
+# only set this key, otherwise the jitsi installer thinks that it already installed the nginx files
+
+- name: Get my public IP
+  ipify_facts:
+  when: ipify_public_ip is undefined
+  tags:
+    - jitsi
+
+- include: packages.yml
+  tags:
+    - jitsi
+
+- include: dynamic_vars.yml
+  tags:
+    - jitsi
+
+- include: prosody.yml
+  when: not videobridge_only
+  tags:
+    - jitsi
+
+- include: jitsi-meet.yml
+  when: not videobridge_only
+  tags:
+    - jitsi
+
+- include: jicofo.yml
+  when: not videobridge_only
+  tags:
+    - jitsi
+
+- include: jitsi-videobridge.yml
+  when: videobridge_only
+  tags:
+    - jitsi
+
+- name: Jitsi | set NPROC
+  replace:
+    path: /etc/systemd/system.conf
+    regexp: '#DefaultLimitNPROC=$'
+    replace: 'DefaultLimitNPROC=65000'
+  notify: reload systemctl
+  tags:
+    - jitsi
+
+- name: Jitsi | set TasksMax
+  replace:
+    path: /etc/systemd/system.conf
+    regexp: '#DefaultTasksMax=$'
+    replace: 'DefaultTasksMax=65000'
+  notify: reload systemctl
+  tags:
+    - jitsi
+
+- name: Jitsi | set NOFILE
+  replace:
+    path: /etc/systemd/system.conf
+    regexp: '#DefaultLimitNOFILE=$'
+    replace: 'DefaultLimitNOFILE=65000'
+  notify: reload systemctl
+  tags:
+    - jitsi
+
+
+
+

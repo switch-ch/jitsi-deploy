@@ -1,0 +1,165 @@
+---
+
+
+- name: Configure signing key for prosody repository
+  apt_key:
+    url: "https://prosody.im/files/prosody-debian-packages.key"
+    state: present
+
+- name: Install Prosody Apt Repo
+  apt_repository:
+    repo: "deb https://packages.prosody.im/debian bionic main"
+    state: present
+    filename: /etc/apt/sources.list.d/prosody
+
+
+
+- name: Install Prosody
+  apt:
+    name: prosody
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: not videobridge_only
+
+
+- name: copy global prosdoy config temmplate
+  template:
+    src: prosody_global_config.j2
+    dest: "/etc/prosody/prosody.cfg.lua"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "luac -p %s"
+  notify: restart prosody
+  tags:
+    - conf
+
+- name: Copy Prosody config template.
+  template:
+    src: prosody_config.j2
+    dest: "/etc/prosody/conf.avail/{{ jitsi_fqdn }}.cfg.lua"
+    owner: root
+    group: root
+    mode: "0644"
+    # Simply syntax check for validation, doesn't catch config errors.
+    validate: "luac -p %s"
+  notify: restart prosody
+  tags:
+    - conf
+
+- name: Symlink Prosody config by domain name.
+  file:
+    path: "/etc/prosody/conf.d/{{ jitsi_fqdn }}.cfg.lua"
+    state: link
+    src: "/etc/prosody/conf.avail/{{ jitsi_fqdn }}.cfg.lua"
+  notify: restart prosody
+
+- name: Register jicofo agent with Prosody service.
+  command: >
+    prosodyctl register focus auth.{{ jitsi_fqdn }} {{ jitsi_meet_jicofo_password }}
+  args:
+    # Yes, prosody actually URL-escapes the directory name for some reason.
+    # Must hardcode the escaping in the prefix, since the replace filter only
+    # applies to the server name var, not the concatenated string.
+    creates: /var/lib/prosody/{{ 'auth%2e'+jitsi_fqdn | replace('.', '%2e') | replace('-', '%2d') }}/accounts/focus.dat
+  notify:
+    - restart jicofo
+    - restart prosody
+
+- name: Overwrite focus password
+  template:
+    src: focus.dat.j2
+    dest: /var/lib/prosody/{{ 'auth%2e'+jitsi_fqdn | replace('.', '%2e') | replace('-', '%2d') }}/accounts/focus.dat
+    owner: prosody
+    group: prosody
+    mode: '0640'
+  notify:
+    - restart jicofo
+    - restart prosody
+
+- name: Register jvb agent with Prosody service.
+  command: >
+    prosodyctl register jvb auth.{{ jitsi_fqdn }} {{ jitsi_meet_videobridge_password }}
+  args:
+    # Yes, prosody actually URL-escapes the directory name for some reason.
+    # Must hardcode the escaping in the prefix, since the replace filter only
+    # applies to the server name var, not the concatenated string.
+    creates: /var/lib/prosody/{{ 'jvg%2e'+jitsi_fqdn | replace('.', '%2e') |  replace('-', '%2d') }}/accounts/jvb.dat
+  notify:
+    - restart jicofo
+    - restart prosody
+
+- name: Generate SSL keypair for Prosody service.
+  shell: >
+    yes '' | prosodyctl cert generate {{ jitsi_fqdn }}
+  args:
+    creates: /var/lib/prosody/{{ jitsi_fqdn }}.crt
+  notify:
+    - restart jicofo
+    - restart prosody
+
+- name: Generate SSL keypair for Prosody auth service.
+  shell: >
+    yes '' | prosodyctl cert generate auth.{{ jitsi_fqdn }}
+  args:
+    creates: /var/lib/prosody/auth.{{ jitsi_fqdn }}.crt
+  notify:
+    - restart jicofo
+    - restart prosody
+
+- name: set file mode on certificates
+  file:
+    path: "/var/lib/prosody/{{ jitsi_fqdn }}.crt"
+    owner: root
+    group: prosody
+    mode: '0640'
+  with_items:
+    - /var/lib/prosody/{{ jitsi_fqdn }}.crt
+    - /var/lib/prosody/{{ jitsi_fqdn }}.key
+    - /var/lib/prosody/auth.{{ jitsi_fqdn }}.crt
+    - /var/lib/prosody/auth.{{ jitsi_fqdn }}.key
+
+- name: Assure localhost mode
+  file:
+    path: "/etc/prosody/certs/localhost.key"
+    mode: '0644'
+
+- name: symlink prosody certs
+  file:
+    path: "/etc/prosody/certs/{{ jitsi_fqdn }}.crt"
+    state: link
+    src:  "/var/lib/prosody/{{ jitsi_fqdn }}.crt"
+  notify: restart prosody
+
+- name: symlink prosody key
+  file:
+    path: "/etc/prosody/certs/{{ jitsi_fqdn }}.key"
+    state: link
+    src:  "/var/lib/prosody/{{ jitsi_fqdn }}.key"
+  notify: restart prosody
+
+- name: symlink prosody auth certs
+  file:
+    path: "/etc/prosody/certs/auth.{{ jitsi_fqdn }}.crt"
+    state: link
+    src:  "/var/lib/prosody/auth.{{ jitsi_fqdn }}.crt"
+  notify: restart prosody
+
+- name: symlink prosody auth key
+  file:
+    path: "/etc/prosody/certs/auth.{{ jitsi_fqdn }}.key"
+    state: link
+    src:  "/var/lib/prosody/auth.{{ jitsi_fqdn }}.key"
+  notify: restart prosody
+
+- name: symlink prosody auth certs to ca-certificates
+  file:
+    path: "/etc/prosody/certs/auth.{{ jitsi_fqdn }}.crt"
+    state: link
+    src:  "/usr/local/share/ca-certificates/auth.{{ jitsi_fqdn }}.crt"
+  notify: restart prosody
+
+- name: update-ca-certificates
+  command: update-ca-certificates -f
+

@@ -1,0 +1,29 @@
+---
+
+# we use https://site24x7.com for monitoring. Add a device key to enable automatic
+# provisioning of server monitoring.
+site24x7_device_key: your_key
+site24x7_proxy: NONE
+
+# How many video streams are transmitted by default.
+# set to `-1` to enable default behaviour (all video streams of all participants are
+# shared with everybody. Puts a significant amount of load on the videobridges.
+
+jitsi_last_n: 4
+
+
+
+
+# Default auth information, used in multiple service templates.
+jitsi_meet_jicofo_user: focus
+jitsi_meet_jicofo_port: 5347
+
+jitsi_meet_jicofo_loglevel: INFO
+
+jitsi_meet_videobridge_port: 5347
+
+jitsi_meet_videobridge_loglevel: ALL
+# A recent privacy-friendly addition, see here for details:
+# https://github.com/jitsi/jitsi-meet/issues/422
+# https://github.com/jitsi/jitsi-meet/pull/427
+jitsi_meet_disable_third_party_requests: true

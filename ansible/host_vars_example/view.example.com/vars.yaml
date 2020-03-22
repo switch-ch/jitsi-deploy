@@ -1,0 +1,13 @@
+---
+
+# the fully qualified domain name of the `view` server
+jitsi_fqdn: view.example.com
+
+nginx_ssl_crt: |
+  -----BEGIN CERTIFICATE-----
+  MIIGVzCCBT+12345678
+  ...
+  abcdefghijk==
+  -----END CERTIFICATE-----
+
+nginx_ssl_key: "{{ vault_nginx_ssl_key }}"

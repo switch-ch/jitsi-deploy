@@ -1,0 +1,59 @@
+# Variables for foo.meet.example.com
+---
+# ==== VM Build variables ====
+jitsi_vm_hostname: "jitsi-foo"
+jitsi_vm_rootvolume_name: "jitsi-foo"
+jitsi_vm_network: "private"
+jitsi_vm_image: "Ubuntu Bionic 18.04 (SWITCHengines)"
+jitsi_vm_flavor: "m1.medium"
+jitsi_vm_ssh_key: "ssh_key_name"
+jitsi_vm_storage_type: "ceph-standard"
+# ============================
+
+# set to either `nightly` or `shib`
+# `nightly` installs the latest unstable packages
+# `shib` installs the stable packages from August 2019 that will work with Shibboleth Authentication
+jitsi_version: nightly
+
+
+# The fully Qualified Domain Name (fqdn) of this jitsi-meet instance. This playbook allows for an arbitrary amount
+# of frontend servers that all share the same pool of videobridges
+
+jitsi_fqdn: foo.meet.example.com
+
+
+# Setting for Shibboleth Authentication
+# Use Shibboleth authentication - will (currently - 22.3.2020) only work with an older version of Jitsi.
+
+jitsi_shib: false
+shibboleth_support_email: support@example.com
+jitsi_shibboleth_entity: foo.meet.example.com
+
+shib_use_wayf: false
+shib_entity_url: http://entitiy-id.foo.example.com
+
+# add your callstats.io credentials here
+# if set to `false`, the callstats configuration will not be deployed
+
+# callstats_io_appid: 12345667
+# callstats_io_secret: "long_secret_string"
+callstats_io_appid: false
+callstats_io_secret: ""
+
+# The certificate of the NGINX Server - replace with your own
+nginx_ssl_crt: |
+    -----BEGIN CERTIFICATE-----
+    MIabccefghaij
+    ....
+    qwertyuiop==
+    -----END CERTIFICATE-----
+
+# The secret key of the server is stored in the vault file
+nginx_ssl_key: "{{ vault_nginx_ssl_key }}"
+
+# The self signed certificate for Shibboleth that was generated during the installation
+shib_cert_pem: |
+    TODO
+
+# The secret key of the shibboleth certificate is stored in the vault file
+shib_cert_key: "{{ vault_shib_cert_key }}"

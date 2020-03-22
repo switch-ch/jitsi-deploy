@@ -1,0 +1,28 @@
+---
+- name: Copy Jicofo config file.
+  template:
+    dest: /etc/jitsi/jicofo/config
+    src: jicofo_config.j2
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart jicofo
+
+- name: Set Jicofo log level.
+  lineinfile:
+    dest: /etc/jitsi/jicofo/logging.properties
+    regexp: '^\.level'
+    line: ".level={{ jitsi_meet_jicofo_loglevel }}"
+    state: present
+  notify: restart jicofo
+
+- name: jicofo sip-communicator properties
+  become: yes
+  tags:
+    - jitsi
+    - conf
+  template:
+    src: jicofo_sip-communicator.properties.j2
+    dest: /etc/jitsi/jicofo/sip-communicator.properties
+    mode: 0644
+  notify: restart jicofo

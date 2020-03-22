@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SWITCH conference viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+
+    <!-- Site Icons -->
+    <link rel="shortcut icon" href="site_icons/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="site_icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="site_icons/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="site_icons/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="site_icons/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="site_icons/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="site_icons/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="site_icons/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="site_icons/apple-touch-icon-152x152.png" />
+
+    <!-- Switch Styles-->
+    <link href="css/package.css" rel="stylesheet">
+    <link href="css/jitsi-additions.css" rel="stylesheet">
+
+    <script src="js/scripts.min.js"></script>
+<!--
+switch when developping
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+--> <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+    <script src="js/jitsi/external_api.js"></script>
+  </head>
+
+
+  <body class="swi-subsite">
+
+    <div class="container">
+
+  <div class="swi-subsite-logo-container">
+    <a href="https://www.switch.ch/"><img height="46" width="180" src="images/logo.png" alt=""></a>
+<!--
+disable language
+    <ul class="nav nav-pills pull-right swi-nav-pills-app-meta hidden-xs">
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">De <span class="swi-link-caret-grey"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="#">En</a></li>
+          <li><a href="#">Fr</a></li>
+          <li><a href="#">It</a></li>
+        </ul>
+      </li>
+    </ul>
+-->
+  </div><!-- /.swi-subsite-logo-container -->
+
+  <nav class="navbar navbar-default swi-navbar-subsite" role="navigation">
+    <div class="container-fluid">
+
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">SWITCH conference viewer</a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+        <ul class="nav navbar-nav">
+          <li><a href="https://help.switch.ch/meet/">Help</a></li>
+          <li><a href="https://www.switch.ch/meet/">About</a></li>
+
+          <!-- navigation items only visible on xs -->
+<!--
+
+disable language on mobile viewport
+          <li class="dropdown visible-xs">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Language <b class="caret"></b></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">De</a></li>
+              <li><a href="#">En</a></li>
+              <li><a href="#">Fr</a></li>
+              <li><a href="#">It</a></li>
+            </ul>
+          </li>
+
+        -->
+        </ul>
+
+      </div><!-- /.navbar-collapse -->
+
+    </div><!-- /.container-fluid -->
+  </nav>
+
+
+</div>
+
+    <div class="container swi-container">
+
+      <div class="jumbotron jumbotron-grey text-center">
+        <h1>SWITCH conference viewer <span class="label label-default">Beta</span></h1>
+        <p class="lead">Visit your university courses online.</p>
+      </div>
+
+      <div id="app">
+
+        <transition name="slide-fade">
+        <div v-if="activeVideoConferences.length < 1" id="roomSelectionForm">
+          <div class="row">
+            <div class="col-xs-8 col-xs-offset-2">
+
+            <h4 class="text-center">Join one of the following online classes</h4><br />
+
+                <div class="form-horizontal" role="form">
+                        <div class="form-group">
+                          <label for="instanceSelect" class="col-sm-4 control-label">Available universities</label>
+                          <div id="jitsi-selector" class="col-sm-8">
+                            <select class="form-control" v-model="selectedInstance" id="instanceSelect">
+                              <option disabled value="">-</option>
+                                <option v-for="item in instances" :value="item" :key="item.id">
+                                    {{ item.name }}
+                                </option>
+                            </select>
+                          </div>
+                        </div>
+                        <div id="room" class="form-group">
+                          <label data-toggle="tooltip" title="A unique identifier to determine your lection. Supplied by your teacher." data-placement="top" for="roomName" class="col-sm-4 control-label">Enter the lecture room name <span class="glyphicon glyphicon-info-sign"></span></label>
+                          <div class="col-sm-8">
+                            <input id="roomName" class="form-control" v-model="room" placeholder="Enter the lecture room name">
+                          </div>
+                        </div>
+
+                        <div class="form-group">
+                          <div id="start_view" v-on:mouseover="triggerBtnHelp(true)" v-on:mouseleave="triggerBtnHelp(false)" class="col-sm-offset-4 col-sm-8"><br />
+                            <button class="btn btn-lg btn-primary" :disabled="!isFormFilledOut" v-on:click="start_view"><img v-if="loadingIndicator" src="images/loading.gif" height="20px" /> Start viewing</button> <span style="color: #888"><small v-if="btnHelpEnabled">Please choose a university and a room</small></span>
+                          </div>
+                        </div>
+                      </div>
+
+                </div>
+          </div>
+          <div style="color: #888; margin-top: 150px; font-size: 90%;">
+            <div class="row text-center">
+              <div class="col-xs-12">
+                <p>With conference viewer, you can</p>
+              </div>
+            </div>
+            <div class="row text-center" style="margin-top: 10px;">
+              <div class="col-md-4">
+                <span class="glyphicon glyphicon-facetime-video" style="font-size: 3em; margin-bottom: 20px;"></span>
+                <p>Watch your university course online (if available).</p>
+              </div>
+              <div class="col-md-4">
+                <span class="glyphicon glyphicon-comment" style="font-size: 3em; margin-bottom: 20px;"></span>
+                <p>Ask questions in the online chat.</p>
+              </div>
+              <div class="col-md-4">
+                <span class="glyphicon glyphicon-tree-conifer" style="font-size: 3em; margin-bottom: 20px;"></span>
+                <p>To spare resources, you wont be able to use your microphone or webcam.</p>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </transition>
+
+
+        <div v-if="debug" class="row">
+          <div class="col-xs-12">
+            <div>Active Video Conferences: {{ activeVideoConferences.length }}</div>
+          </div>
+        </div>
+
+        <div v-show="activeVideoConferences.length > 0" class="row">
+          <div class="col-xs-12">
+            <div id="viewer">
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /.container -->
+
+
+    <footer class="swi-footer-bottom swi-footer-bottom-subsite">
+
+      <div class="container clearfix">
+
+        <div class="swi-footer-breadcrumb pull-left">
+          <ol class="breadcrumb">
+            <li><a href="https://www.switch.ch/imprint/">Imprint</a></li>
+            <li><a href="https://www.switch.ch/disclaimer/">Legal Notice</a></li>
+          </ol>
+        </div>
+
+        <div class="swi-footer-copyright-subsite pull-right">
+          &copy; <span><span id="year" style="margin-right: 0;"></span><script>var currYear = new Date().getFullYear(); document.querySelector("#year").innerHTML = currYear;</script> for content at SWITCH</span>
+        </div>
+
+      </div><!-- /.container -->
+
+    </footer>
+
+
+
+    <script>
+        let app = new Vue({
+            el: '#app',
+            data: {
+                message: 'Hello View!',
+                instances: [
+                    {name: 'fernuni.meet.switch.ch'},
+                    {name: 'ffhs.meet.switch.ch'},
+                    {name: 'open.meet.switch.ch'},
+                    {name: 'unibas.meet.switch.ch'},
+                    {name: 'uzh.meet.switch.ch'},
+                    {name: 'intern.meet.switch.ch'},
+                    ],
+                selectedInstance: '',
+                room: '',
+                activeVideoConferences: [],
+                debug: false,
+                btnHelpEnabled: false,
+                loadingIndicator: false
+
+            },
+            methods: {
+                start_view: function(event) {
+
+                    this.loadingIndicator = true;
+
+                    let domain = this.selectedInstance.name;
+                    let options = {
+                        roomName: this.room,
+                        width: '100%',
+                        height: 600,
+                        parentNode: document.querySelector('#viewer'),
+                        configOverwrite: {
+                            startWithAudioMuted: true,
+                            startWithVideoMuted: true,
+                            disableSimulcast: false,
+                            channelLastN: 2,
+                            enableUserRolesBasedOnToken: true,
+                        },
+                        interfaceConfigOverwrite: {
+                          filmStripOnly: false,
+                          TOOLBAR_BUTTONS: [
+                            'closedcaptions', 'fullscreen',
+                            'fodeviceselection', 'hangup', 'chat', 'recording',
+                            'settings', 'raisehand',
+                            'feedback', 'stats',
+                            'download', 'help', 'mute-everyone'
+                          ],
+
+                          DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+                        }
+                    };
+                    let api = new JitsiMeetExternalAPI(domain, options);
+
+                    // increase number of active vconfs
+                    // when a vconf is started, save the auto-generated event
+                    // so we know how many vconfs the user has active
+                    api.addListener('videoConferenceJoined', (object) => {
+                      this.activeVideoConferences.push(object);
+                      this.loadingIndicator = false;
+                    });
+
+                    // decrease number of active vconfs
+                    api.addListener('videoConferenceLeft', (object) => {
+                      this.decreaseVconfCounter(object.roomName);
+
+                    });
+                },
+                decreaseVconfCounter: function(roomName) {
+                  let vconfs = this.activeVideoConferences;
+                  this.activeVideoConferences = this.activeVideoConferences.filter(vconfs => vconfs.roomName != roomName);
+
+                  // if no more vconfs are active, empty the vconf div
+                  if(this.activeVideoConferences.length < 1){
+                    document.querySelector("#viewer").innerHTML = "";
+                  }
+                },
+                triggerBtnHelp: function(hover){
+                  if (hover &!this.isFormFilledOut){
+                    this.btnHelpEnabled = true;
+                  } else {
+                    this.btnHelpEnabled = false;
+                  }
+                }
+
+            },
+            computed: {
+              // helper method that checks if the form has been filled out properly
+              isFormFilledOut: function(){
+                return this.selectedInstance.name!== undefined && this.selectedInstance.name.length > 2 && this.room.length > 2;
+              }
+            }
+
+        });
+
+
+    </script>
+
+  </body>
+</html>

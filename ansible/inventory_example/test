@@ -1,0 +1,14 @@
+# test server for internal jitsi
+
+
+[jitsi]
+test.meet.example.com ansible_host=4.5.6.7
+
+[videobridge]
+test-v1.meet.example.com ansible_host=5.6.7.8
+test-v2.meet.example.com ansible_host=5.6.7.9
+
+
+[test:children]
+jitsi
+videobridge

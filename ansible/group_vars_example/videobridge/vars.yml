@@ -1,0 +1,7 @@
+---
+
+# add your callstats.io credentials here
+# if set to `false`, the callstats configuration will not be deployed
+
+callstats_io_appid: false
+callstats_io_secret: "secret"

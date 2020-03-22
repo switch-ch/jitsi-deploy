@@ -1,0 +1,180 @@
+---
+###
+# Please specify following variables in ./host_vars/HOST/vars.yml (see foo.meet.example.com)
+# jitsi_vm_hostname: "jitsi-ORGANISATION"
+# jitsi_vm_rootvolume_name: "jitsi-ORGANISATION"
+# jitsi_vm_image: "Ubuntu Bionic 18.04 (SWITCHengines)"
+# jitsi_vm_flavor: "n1.large"
+# jitsi_vm_storage_type: "ceph-standard"
+# jitsi_vm_ssh_key: "default_ssh_key"
+#
+# jitsi_vb_vm_flavor: "m1.large"
+#
+###
+
+- name: Create and launch mailbox VM
+  hosts: localhost
+  tasks:
+  - name: Create root volume
+    os_volume:
+      display_name: "{{ jitsi_vm_rootvolume_name }}"
+      image: "{{ jitsi_vm_image }}"
+      volume_type: "{{ jitsi_vm_storage_type }}"
+      size: "20"
+  - name: Create security groupS - SSH, jitsi
+    os_security_group:
+      state: present
+      name: "{{ item }}"
+    loop:
+        - "SSH"
+        - "jitsi"
+  - name: Add ssh rule (IPv6)
+    os_security_group_rule:
+      security_group: "SSH"
+      protocol: tcp
+      port_range_min: 22
+      port_range_max: 22
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add ssh rule (IPv4)
+    os_security_group_rule:
+      security_group: "SSH"
+      protocol: tcp
+      port_range_min: 22
+      port_range_max: 22
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 10000 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 10000
+      port_range_max: 10000
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 10000 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 10000
+      port_range_max: 10000
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 4443 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 4443
+      port_range_max: 4443
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 4443 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 4443
+      port_range_max: 4443
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - icmp (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: icmp
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - icmp (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: icmp
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 80 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 80
+      port_range_max: 80
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 80 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 80
+      port_range_max: 80
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 443 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 443
+      port_range_max: 443
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 443 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 443
+      port_range_max: 443
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 5347 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 5347
+      port_range_max: 5347
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 5347 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 5347
+      port_range_max: 5347
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+  - name: Add security group rule - port 5222 (IPv4)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 5222
+      port_range_max: 5222
+      ethertype: IPv4
+      remote_ip_prefix: 0.0.0.0/0
+  - name: Add security group rule - port 5222 (IPv6)
+    os_security_group_rule:
+      security_group: "jitsi"
+      protocol: tcp
+      port_range_min: 5222
+      port_range_max: 5222
+      ethertype: IPv6
+      remote_ip_prefix: ::/0
+
+  - name: "Launch VM and generate IPv4"
+    os_server:
+      auto_ip: yes
+      boot_volume: "{{ jitsi_vm_rootvolume_name }}"
+      flavor: "{{ jitsi_vm_flavor }}"
+      key_name: "{{ jitsi_vm_ssh_key }}"
+      name: "{{ jitsi_vm_hostname }}"
+      state: present
+      nics:
+        - net-name: "{{ jitsi_vm_network }}"
+      security_groups:
+        - "SSH"
+        - "jitsi"
+      wait: yes
+    register: instance
+    when: not ansible_check_mode
+
+  - debug:
+      msg:
+      - "Server private IPv4: {{ instance.openstack.private_v4 }}"
+      - "Server IPv4: {{ instance.openstack.public_v4 }}"
+      - "Server IPv6: {{ instance.openstack.public_v6 }} "
+      - "Insert the values into ./host_vars/HOSTNAME/vars.yml and vault.yml. Add callstats.io and ssl certs."
+      - "Call: ansible-playbook -i inventory/production --limit UNI.meet.example.com main.yml -D"
+    when: not ansible_check_mode

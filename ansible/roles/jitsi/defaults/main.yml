@@ -1,0 +1,92 @@
+---
+
+
+# select if shibboleth authentication is used
+jitsi_shib: true
+
+# select which version of Jitsi to install. Valid:
+#  `shib` (for the version from August 2019),
+#  `stable` for the latest stable release
+#  `nightly` for the latest nightly release
+
+jitsi_version: shib
+
+
+# The Debian package installation of jitsi-meet will generate secrets for the components.
+# The role will read the config file and preserve the secrets even while templating.
+# If you wish to generate your own secrets and use those, override these vars, but make
+# sure to store the secrets securely, e.g. with ansible-vault or credstash.
+jitsi_meet_videobridge_secret: 'vb_secret'
+jitsi_meet_videobridge_password: 'vb_password'
+jitsi_meet_jicofo_secret: 'jicofo_secret'
+jitsi_meet_jicofo_password: 'jicofo_pw'
+
+# Default auth information, used in multiple service templates.
+jitsi_meet_jicofo_user: focus
+jitsi_meet_jicofo_port: 5347
+
+# The Jitsi components use the standard Java log levels, see:
+# https://docs.oracle.com/javase/7/docs/api/java/util/logging/Level.html
+# When using log aggregation for jitsi-meet components, set to "WARNING".
+jitsi_meet_jicofo_loglevel: INFO
+# The default config file at /etc/jitsi/videobridge/config claims the default port
+# for JVB is "5275", but the manual install guide references "5347".
+# https://github.com/jitsi/jitsi-meet/blob/master/doc/manual-install.md
+jitsi_meet_videobridge_port: 5347
+
+jitsi_meet_videobridge_loglevel: INFO
+# A recent privacy-friendly addition, see here for details:
+# https://github.com/jitsi/jitsi-meet/issues/422
+# https://github.com/jitsi/jitsi-meet/pull/427
+jitsi_meet_disable_third_party_requests: true
+
+
+jitsi_meet_apt_repos:
+  stable:
+    repo_url: 'deb https://download.jitsi.org/ stable/'
+  unstable:
+    repo_url: 'deb https://download.jitsi.org/ unstable/'
+
+# These debconf settings represent answers to interactive prompts during installation
+# of the jitsi-meet deb package. If you use custom SSL certs, you may have to set more options.
+jitsi_meet_debconf_settings:
+#  - name: jitsi-meet
+#    question: jitsi-meet/jvb-hostname
+#    value: "{{ jitsi_fqdn }}"
+#    vtype: string
+  - name: jitsi-videobridge
+    question: jitsi-videobridge/jvb-hostname
+    value: "{{ jitsi_fqdn }}"
+    vtype: string
+  - name: jitsi-meet
+    question: jitsi-meet/jvb-serve
+    value: "false"
+    vtype: boolean
+  - name: jitsi-meet-prosody
+    question: jitsi-meet-prosody/jvb-hostname
+    value: "{{ jitsi_fqdn }}"
+    vtype: string
+  - name: jitsi-meet-web-config
+    question: jitsi-meet/cert-choice
+    value: "I want to use my own certificate"
+    vtype: select
+  - name: jitsi-meet-web-config
+    question: jitsi-meet/cert-path-key
+    value: "/etc/ssl/{{ jitsi_fqdn }}.key"
+    vtype: string
+  - name: jitsi-meet-web-config
+    question: jitsi-meet/cert-path-crt
+    value: "/etc/ssl/{{ jitsi_fqdn }}.crt"
+    vtype: string
+
+jitsi_1908_packages:
+  - https://download.jitsi.org/jitsi/debian/jicofo_1.0-481-1_amd64.deb
+  - https://download.jitsi.org/jitsi/debian/jitsi-meet-web_1.0.3577-1_all.deb
+  - https://download.jitsi.org/jitsi/debian/jitsi-meet-prosody_1.0.3577-1_all.deb
+  - https://download.jitsi.org/jitsi/debian/jitsi-meet-web-config_1.0.3577-1_all.deb
+
+jitsi_packages:
+  - jicofo
+  - jitsi-meet-web
+  - jitsi-meet-prosody
+  - jitsi-meet-web-config

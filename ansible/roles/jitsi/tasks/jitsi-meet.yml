@@ -1,0 +1,69 @@
+---
+
+- name: Jitsi | SWITCHspecific Welcome Page Additions
+  copy:
+    src: welcomePageAdditionalContent.html
+    dest: /usr/share/jitsi-meet/static/welcomePageAdditionalContent.html
+    mode: 0644
+  tags:
+    - conf
+
+- name: jitsi | jitsi-meet config.js
+  become: yes
+  tags:
+    - conf
+    - webconf
+  template:
+    src: jitsi-config.j2
+    dest: /etc/jitsi/meet/{{ jitsi_fqdn }}-config.js
+    mode: 0644
+
+- name: jitsi | overwrite nginx config file
+  become: yes
+  tags:
+    - jitsi
+    - conf
+  template:
+    src: nginx-jitsi.conf.j2
+    dest: /etc/nginx/sites-available/{{ jitsi_fqdn }}.conf
+    mode: 0644
+  notify: restart nginx
+
+- name: jitsi | enable site
+  file:
+    src: /etc/nginx/sites-available/{{ jitsi_fqdn }}.conf
+    dest: /etc/nginx/sites-enabled/{{ jitsi_fqdn }}.conf
+    state: link
+  tags:
+    - jitsi
+    - conf
+
+- name: Jitsi | set SWITCHDesign
+  copy:
+    src: all.css
+    dest: /usr/share/jitsi-meet/css/all.css
+    mode: 0644
+  tags:
+    - jitsi
+    - webconf
+  when: jitsi_version != "shib"
+
+- name: Jitsi | set SWITCHDesign for shib
+  copy:
+    src: all_1908.css
+    dest: /usr/share/jitsi-meet/css/all.css
+    mode: 0644
+  tags:
+    - jitsi
+    - webconf
+  when: jitsi_version == "shib"
+
+
+- name: Jitsi | Interface configuration
+  copy:
+    src: interface_config.js
+    dest: /usr/share/jitsi-meet/interface_config.js
+    mode: 0644
+  tags:
+    - jitsi
+    - webconf

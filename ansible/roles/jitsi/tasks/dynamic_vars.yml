@@ -1,0 +1,56 @@
+---
+- name: Read Jitsi Videobridge secret var.
+  command: >
+    perl -lane '/^JVB_SECRET=(.*)$/ && print $1'
+    /etc/jitsi/videobridge/config
+  register: jitsi_meet_videobridge_secret_result
+  failed_when: jitsi_meet_videobridge_secret_result.rc != 0 or
+    jitsi_meet_videobridge_secret_result.stdout == ''
+  check_mode: no
+  changed_when: false
+  when: videobridge_only
+
+- name: Set fact for Jitsi Videobridge secret var.
+  set_fact:
+    jitsi_meet_videobridge_secret: "{{ jitsi_meet_videobridge_secret_result.stdout }}"
+  # Permit custom secrets in the template; only set the var if no custom secret is declared.
+  when: (jitsi_meet_videobridge_secret is not defined or
+    jitsi_meet_videobridge_secret == '') and
+    not videobridge_only
+
+
+- name: Read Jicofo secret var.
+  command: >
+    perl -lane '/^JICOFO_SECRET=(.*)$/ && print $1'
+    /etc/jitsi/jicofo/config
+  register: jitsi_meet_jicofo_secret_result
+  changed_when: false
+  check_mode: no
+  failed_when: jitsi_meet_jicofo_secret_result.rc != 0 or
+    jitsi_meet_jicofo_secret_result.stdout == ''
+  when: not videobridge_only
+
+- name: Set fact for Jitsi Videobridge secret var.
+  set_fact:
+    jitsi_meet_jicofo_secret: "{{ jitsi_meet_jicofo_secret_result.stdout }}"
+  # Permit custom secrets in the template; only set the var if no custom secret is declared.
+  when: jitsi_meet_jicofo_secret is not defined or
+    jitsi_meet_jicofo_secret == ''
+
+- name: Read Jicofo user auth password var.
+  command: >
+    perl -lane '/^JICOFO_AUTH_PASSWORD=(.*)$/ && print $1'
+    /etc/jitsi/jicofo/config
+  register: jitsi_meet_jicofo_password_result
+  changed_when: false
+  check_mode: no
+  failed_when: jitsi_meet_jicofo_password_result.rc != 0 or
+    jitsi_meet_jicofo_password_result.stdout == ''
+  when: not videobridge_only
+
+- name: Set fact for Jitsi user auth password var.
+  set_fact:
+    jitsi_meet_jicofo_password: "{{ jitsi_meet_jicofo_password_result.stdout }}"
+  # Permit custom secrets in the template; only set the var if no custom secret is declared.
+  when: jitsi_meet_jicofo_password is not defined or
+    jitsi_meet_jicofo_password == ''

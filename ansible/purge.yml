@@ -1,0 +1,53 @@
+# Jitsi  purge
+#
+#     ansible-galaxy install -fr roles/requirements.yml
+#
+---
+- name: purge jitsi
+  hosts: jitsi
+  become: yes
+  tasks:
+    - name: purge jitsi
+      shell: apt-get -y purge prosody jigasi jitsi-meet jitsi-meet-web-config jitsi-meet-prosody jitsi-meet-web jicofo jitsi-videobridge
+    - name: purge prosody /etc/prosody
+      file:
+        dest: /etc/prosody
+        state: absent
+    - name: purge prosody /var/lib/prosody
+      file:
+        dest: /var/lib/prosody
+        state: absent
+    - name: purge jitsi-meet /usr/share/jitsi-meet
+      file:
+        dest: /usr/share/jitsi-meet
+        state: absent
+  tags:
+    - jitsi
+
+
+- name: purge videobridge
+  hosts: videobridge
+  become: yes
+  tasks:
+    - name: purge jitsi
+      shell: apt-get -y purge jitsi-videobridge
+  tags:
+    - jitsi
+
+- name: purge jicofo log
+  hosts: jitsi
+  become: yes
+  tasks:
+    - name: purge log
+      shell: echo "" > /var/log/jitsi/jicofo.log
+      tags:
+        - jicofolog
+
+- name: purge nginx
+  hosts: jitsi
+  become: yes
+  tasks:
+    - name: purge nginx
+      shell: apt-get -y purge nginx
+  tags:
+    - nginx

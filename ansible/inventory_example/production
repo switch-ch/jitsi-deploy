@@ -1,0 +1,27 @@
+# production server inventory for example Jitsi Installation
+
+# list the jitsi-meet server in the `jitsi` catgory. Each server here
+# will get a full installation of the Jitsi Meet frontend and is
+# independent from all the other server listed here
+[jitsi]
+foo.meet.example.com ansible_host=1.2.3.4
+bar.meet.example.com ansible_host=2.3.4.5
+
+# list all videobridges here. The names DO NOT be to listed in DNS, we use DNS names
+# here to make it easier to target specific videobridges with the Ansible Playbook
+# limit settings
+
+[videobridge]
+jitsi-videobridge-0001.videobridges.meet.example.com ansible_host=3.4.5.6
+jitsi-videobridge-0002.videobridges.meet.example.com ansible_host=3.4.5.7
+jitsi-videobridge-0003.videobridges.meet.example.com ansible_host=3.4.5.8
+
+# The single `view`  server that allows for accessing running conferences on a "view" only basis
+
+[view]
+view.example.com ansible_host=4.5.6.7
+
+[production:children]
+jitsi
+videobridge
+view

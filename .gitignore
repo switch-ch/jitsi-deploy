@@ -6,4 +6,5 @@ ansible/roles/users/*
 ansible/host_vars
 ansible/group_vars
 ansible/inventory
+.DS_Store
 

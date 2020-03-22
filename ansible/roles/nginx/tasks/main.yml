@@ -1,0 +1,105 @@
+---
+- name: nginx | nginx signing key
+  tags:
+    - nginx
+  apt_key:
+    url: http://nginx.org/keys/nginx_signing.key
+    state: present
+
+- name: nginx | nginx deb sources
+  become: yes
+  tags:
+    - nginx
+  apt_repository:
+    repo: "deb http://nginx.org/packages/mainline/ubuntu/ bionic nginx"
+    state: present
+    filename: nginx
+
+- name: nginx | Install NGINX
+  tags:
+    - nginx
+  apt:
+    name: nginx
+    force_apt_get: yes
+
+- name: nginx | Creates directory
+  file:
+    path: /etc/nginx/sites-available
+    state: directory
+  tags:
+    - nginx
+
+- name: nginx | Creates directory
+  file:
+    path: /etc/nginx/sites-enabled
+    state: directory
+  tags:
+    - nginx
+
+- name: nginx | set nginx.conf
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    mode: 0644
+  tags:
+    - nginx
+
+- name: nginx | install nginx SSL certificate
+  copy:
+    backup: yes
+    content: "{{ nginx_ssl_crt }}"
+    dest: "/etc/ssl/{{ jitsi_fqdn }}.crt"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart nginx
+  when: nginx_ssl_crt is defined
+  tags:
+    - nginx
+
+- name: nginx | install nginx SSL key
+  copy:
+    backup: yes
+    content: "{{ nginx_ssl_key }}"
+    dest: "/etc/ssl/{{ jitsi_fqdn }}.key"
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart nginx
+  when: nginx_ssl_crt is defined
+  tags:
+    - nginx
+
+
+- name: shib | copy nginx modules
+  tags:
+    - nginx
+  copy:
+    src: nginx-module-headersmore_1.17.9-1~bionic_amd64.deb
+    dest: /tmp/nginx-module-headersmore_1.17.9-1~bionic_amd64.deb
+
+- name: shib | copy nginx modules
+  tags:
+    - nginx
+  copy:
+    src: nginx-module-shibboleth_1.17.9-1~bionic_amd64.deb
+    dest: /tmp/nginx-module-shibboleth_1.17.9-1~bionic_amd64.deb
+
+- name: Shib | install nginx modules
+  tags:
+    - nginx
+  apt:
+    deb: /tmp/nginx-module-headersmore_1.17.9-1~bionic_amd64.deb
+
+- name: Shib | install nginx modules
+  tags:
+    - nginx
+  apt:
+    deb: /tmp/nginx-module-shibboleth_1.17.9-1~bionic_amd64.deb
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+  tags:
+    - nginx

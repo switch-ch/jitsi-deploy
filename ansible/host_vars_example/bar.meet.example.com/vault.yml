@@ -1,0 +1,12 @@
+---
+# be sure to encrypt this vault with
+# `ansible-vault encrypt host_vars/foo.meet.example.com/vault.yml`
+# before saving it in a version control system
+
+vault_nginx_ssl_key: |
+  -----BEGIN PRIVATE KEY-----
+  ...
+  -----END PRIVATE KEY-----
+
+vault_shib_cert_key: |
+  TODO

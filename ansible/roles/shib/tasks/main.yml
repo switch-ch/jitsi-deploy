@@ -1,0 +1,111 @@
+---
+# following : https://github.com/jitsi/jicofo/blob/master/doc/shibboleth.md
+
+- name: Shib | Install support packages
+  tags:
+    - shib
+  apt:
+    pkg:
+      - xz-utils
+      - supervisor
+    force_apt_get: yes
+
+- name: Shib | Use SWITCH repository
+  tags:
+    - shib
+  apt:
+    deb: https://pkg.switch.ch/switchaai/ubuntu/dists/bionic/main/binary-all/misc/switchaai-apt-source_1.0.0ubuntu1_all.deb
+
+- name: Shib | install Shibboleth
+  apt:
+    pkg: shibboleth
+    force_apt_get: yes
+    install_recommends: no
+    update_cache: yes
+  tags:
+    - shib
+
+- name: Shib | Create Cert / Key
+  tags:
+    - shib
+  command: shib-keygen -f -u _shibd -h {{ jitsi_fqdn }} -y 3 -e https://{{ jitsi_fqdn }}/shibboleth -o /etc/shibboleth/
+  args:
+    creates: /etc/shibboleth/sp-cert.pem
+
+- name: Shib | Create fingerprint
+  tags:
+    - shib
+  command: openssl x509 -in /etc/shibboleth/sp-cert.pem -fingerprint -sha1 -noout
+  register: fingerprint
+
+- name: shib | write supervisor config
+  become: yes
+  template:
+    src: supervisor_shib.conf.j2
+    dest: /etc/supervisor/conf.d/shib.conf
+    mode: 0644
+  notify: restart supervisor
+  tags:
+    - shib
+
+- name: Copy shibboleth2.xml
+  template:
+    backup: yes
+    src: shibboleth2.xml.j2
+    dest: /etc/shibboleth/shibboleth2.xml
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - shib
+    - conf
+  notify: restart shibboleth
+
+- name: Copy attribute-map.xml
+  template:
+    backup: yes
+    src: attribute-map.xml.j2
+    dest: /etc/shibboleth/attribute-map.xml
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart shibboleth
+  tags:
+    - shib
+    - conf
+
+- name: Copy attribute-policy.xml
+  template:
+    backup: yes
+    src: attribute-policy.xml.j2
+    dest: /etc/shibboleth/attribute-policy.xml
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart shibboleth
+  tags:
+    - shib
+    - conf
+
+- name: Copy SWITCHaaiRootCA.crt.pem
+  template:
+    backup: yes
+    src: SWITCHaaiRootCA.crt.pem.j2
+    dest: /etc/shibboleth/SWITCHaaiRootCA.crt.pem
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart shibboleth
+  tags:
+    - shib
+
+- name: restart supervisor
+  service:
+    name: supervisor
+    state: restarted
+  tags:
+    - shib
+
+- name: Shib | Display fingerprint
+  debug:
+    var: fingerprint.stdout_lines

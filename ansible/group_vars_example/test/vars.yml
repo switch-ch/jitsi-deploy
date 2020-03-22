@@ -1,0 +1,15 @@
+---
+
+jitsi_home_server: test.meet.example.com
+
+
+# The Debian package installation of jitsi-meet will generate secrets for the components.
+# The role will read the config file and preserve the secrets even while templating.
+# If you wish to generate your own secrets and use those, override these vars, but make
+# sure to store the secrets securely, e.g. with ansible-vault or credstash.
+
+jitsi_meet_videobridge_secret: 'vb_secret_test'
+jitsi_meet_videobridge_password: 'vb_password_test'
+jitsi_meet_jicofo_secret: 'jicofo_secret_test'
+jitsi_meet_jicofo_password: 'jicofo_pw_test'
+prosody_turncredentials_secret: 'turncredentials_secret_test'

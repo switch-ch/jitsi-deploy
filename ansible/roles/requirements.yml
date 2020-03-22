@@ -1,0 +1,6 @@
+# ansible-galaxy install -r roles/requirements.yml
+---
+- src: git@gitlab.cloud.switch.ch:petasolutions-switch-ch/ansible-role-users.git
+  scm: git
+  version: master
+  name: users

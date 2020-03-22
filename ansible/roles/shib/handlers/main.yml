@@ -1,0 +1,11 @@
+# handlers for supervisor service
+---
+- name: restart supervisor
+  service:
+    name: supervisor
+    state: restarted
+
+- name: restart shibboleth
+  service:
+    name: shibd
+    state: restarted

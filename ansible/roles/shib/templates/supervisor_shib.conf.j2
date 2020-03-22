@@ -1,0 +1,17 @@
+[fcgi-program:shibauthorizer]
+command=/usr/lib/x86_64-linux-gnu/shibboleth/shibauthorizer
+socket=unix:///var/run/shibboleth/shibauthorizer.sock
+socket_owner=_shibd:_shibd
+socket_mode=0666
+user=_shibd
+stdout_logfile=/var/log/supervisor/shibauthorizer.log
+stderr_logfile=/var/log/supervisor/shibauthorizer.error.log
+
+[fcgi-program:shibresponder]
+command=/usr/lib/x86_64-linux-gnu/shibboleth/shibresponder
+socket=unix:///var/run/shibboleth/shibresponder.sock
+socket_owner=_shibd:_shibd
+socket_mode=0666
+user=_shibd
+stdout_logfile=/var/log/supervisor/shibresponder.log
+stderr_logfile=/var/log/supervisor/shibresponder.error.log

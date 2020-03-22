@@ -1,0 +1,75 @@
+plugin_paths = { "/usr/share/jitsi-meet/prosody-plugins/" }
+
+-- domain mapper options, must at least have domain base set to use the mapper
+muc_mapper_domain_base = "{{ jitsi_fqdn }}";
+
+turncredentials_secret = "{{ prosody_turncredentials_secret }}";
+
+turncredentials = {
+  { type = "stun", host = "{{ jitsi_fqdn }}", port = "443" },
+  { type = "turn", host = "{{ jitsi_fqdn }}", port = "443", transport = "udp" },
+  { type = "turns", host = "{{ jitsi_fqdn }}", port = "443", transport = "tcp" }
+};
+
+cross_domain_bosh = false;
+consider_bosh_secure = true;
+
+VirtualHost "{{ jitsi_fqdn }}"
+        -- enabled = false -- Remove this line to enable this host
+        authentication = "anonymous"
+        -- Properties below are modified by jitsi-meet-tokens package config
+        -- and authentication above is switched to "token"
+        --app_id="example_app_id"
+        --app_secret="example_app_secret"
+        -- Assign this host a certificate for TLS, otherwise it would use the one
+        -- set in the global section (if any).
+        -- Note that old-style SSL on port 5223 only supports one certificate, and will always
+        -- use the global one.
+        ssl = {
+                key = "/etc/prosody/certs/{{ jitsi_fqdn }}.key";
+                certificate = "/etc/prosody/certs/{{ jitsi_fqdn }}.crt";
+        }
+        speakerstats_component = "speakerstats.{{ jitsi_fqdn }}"
+        conference_duration_component = "conferenceduration.{{ jitsi_fqdn }}"
+        -- we need bosh
+        modules_enabled = {
+            "bosh";
+            "pubsub";
+            "ping"; -- Enable mod_ping
+            "speakerstats";
+            "turncredentials";
+            "conference_duration";
+        }
+        c2s_require_encryption = false
+
+Component "conference.{{ jitsi_fqdn }}" "muc"
+    modules_enabled = {
+        "muc_meeting_id";
+        "muc_domain_mapper";
+        -- "token_verification";
+    }
+    admins = { "focus@auth.{{ jitsi_fqdn }}" }
+
+-- internal muc component
+Component "internal.auth.{{ jitsi_fqdn }}" "muc"
+    modules_enabled = {
+      "ping";
+    }
+    admins = { "focus@auth.{{ jitsi_fqdn }}", "jvb@auth.{{ jitsi_fqdn }}" }
+
+VirtualHost "auth.{{ jitsi_fqdn }}"
+    ssl = {
+        key = "/etc/prosody/certs/auth.{{ jitsi_fqdn }}.key";
+        certificate = "/etc/prosody/certs/auth.{{ jitsi_fqdn }}.crt";
+    }
+    authentication = "internal_plain"
+
+Component "focus.{{ jitsi_fqdn }}"
+    component_secret = "{{ jitsi_meet_jicofo_secret }}"
+
+Component "speakerstats.{{ jitsi_fqdn }}" "speakerstats_component"
+    muc_component = "conference.{{ jitsi_fqdn }}"
+
+
+Component "conferenceduration.{{ jitsi_fqdn }}" "conference_duration_component"
+    muc_component = "conference.{{ jitsi_fqdn }}"

@@ -1,0 +1,9 @@
+# Copy this to ./.openrc_org-name-region
+export OS_AUTH_URL=https://keystone.cloud.switch.ch:5000/v3
+export OS_IDENTITY_API_VERSION=3
+export OS_USERNAME=SAMPLE_USERNAME
+export OS_PASSWORD=SAMPLE_PASSWORD
+export OS_PROJECT_NAME=SAMPLE_PROJECTNAME
+export OS_REGION_NAME=ZH
+export OS_PROJECT_DOMAIN_NAME=Default
+export OS_USER_DOMAIN_NAME=Default
