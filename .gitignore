@@ -1,0 +1,9 @@
+jitsi-openrc.sh
+ansible/vault_password
+.openrc*
+ansible/roles/users/*
+.idea/*
+ansible/host_vars
+ansible/group_vars
+ansible/inventory
+
