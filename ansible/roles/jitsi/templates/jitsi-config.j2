@@ -172,6 +172,16 @@ var config = {
     // startScreenSharing: false,
 
     // Recording
+{% if jibri_enable == true %}
+  {% if jibri_recording == true %}
+  fileRecordingsEnabled: true, // If you want to enable file recording
+  {% endif %}
+
+  {% if jibri_streaming == true %}
+  liveStreamingEnabled: true, // If you want to enable live streaming
+  {% endif %}
+  hiddenDomain: 'recorder.{{ jitsi_fqdn }}',
+{% endif %}
 
     // Whether to enable file recording or not.
     // fileRecordingsEnabled: false,

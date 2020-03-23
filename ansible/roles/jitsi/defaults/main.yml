@@ -90,3 +90,10 @@ jitsi_packages:
   - jitsi-meet-web
   - jitsi-meet-prosody
   - jitsi-meet-web-config
+
+# jibri default settings
+jibri_enable: false
+jibri_recording: false
+jibri_streaming: false
+jibri_user_jibri_password: "jibriauthpass"
+jibri_user_recorder_password: "jibrirecorderpass"
