@@ -23,8 +23,9 @@
     <script src="js/scripts.min.js"></script>
 <!--
 switch when developping
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
---> <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+-->    <script src="js/vue/vue.js"></script>
+ <!--<script src="js/vue/vue.min.js"></script> -->
+    <script src="js/vue/vue-router.min.js"></script>
     <script src="js/jitsi/external_api.js"></script>
   </head>
 
@@ -36,7 +37,8 @@ switch when developping
   <div class="swi-subsite-logo-container">
     <a href="https://www.switch.ch/"><img height="46" width="180" src="images/logo.png" alt=""></a>
 <!--
-disable language
+language selector
+
     <ul class="nav nav-pills pull-right swi-nav-pills-app-meta hidden-xs">
       <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">De <span class="swi-link-caret-grey"></span></a>
@@ -74,7 +76,8 @@ disable language
           <!-- navigation items only visible on xs -->
 <!--
 
-disable language on mobile viewport
+language selector on mobile viewport
+
           <li class="dropdown visible-xs">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Language <b class="caret"></b></a>
             <ul class="dropdown-menu" role="menu">
@@ -106,39 +109,13 @@ disable language on mobile viewport
       <div id="app">
 
         <transition name="slide-fade">
-        <div v-if="activeVideoConferences.length < 1" id="roomSelectionForm">
+        <div v-show="activeVideoConferences.length < 1" id="roomSelectionForm">
           <div class="row">
             <div class="col-xs-8 col-xs-offset-2">
 
-            <h4 class="text-center">Join one of the following online classes</h4><br />
+              <router-view v-on:vconf-count-increased="increaseVconfCounter" v-on:vconf-count-decreased="decreaseVconfCounter"></router-view>
 
-                <div class="form-horizontal" role="form">
-                        <div class="form-group">
-                          <label for="instanceSelect" class="col-sm-4 control-label">Available universities</label>
-                          <div id="jitsi-selector" class="col-sm-8">
-                            <select class="form-control" v-model="selectedInstance" id="instanceSelect">
-                              <option disabled value="">-</option>
-                                <option v-for="item in instances" :value="item" :key="item.id">
-                                    {{ item.name }}
-                                </option>
-                            </select>
-                          </div>
-                        </div>
-                        <div id="room" class="form-group">
-                          <label data-toggle="tooltip" title="A unique identifier to determine your lection. Supplied by your teacher." data-placement="top" for="roomName" class="col-sm-4 control-label">Enter the lecture room name <span class="glyphicon glyphicon-info-sign"></span></label>
-                          <div class="col-sm-8">
-                            <input id="roomName" class="form-control" v-model="room" placeholder="Enter the lecture room name">
-                          </div>
-                        </div>
-
-                        <div class="form-group">
-                          <div id="start_view" v-on:mouseover="triggerBtnHelp(true)" v-on:mouseleave="triggerBtnHelp(false)" class="col-sm-offset-4 col-sm-8"><br />
-                            <button class="btn btn-lg btn-primary" :disabled="!isFormFilledOut" v-on:click="start_view"><img v-if="loadingIndicator" src="images/loading.gif" height="20px" /> Start viewing</button> <span style="color: #888"><small v-if="btnHelpEnabled">Please choose a university and a room</small></span>
-                          </div>
-                        </div>
-                      </div>
-
-                </div>
+            </div>
           </div>
           <div style="color: #888; margin-top: 150px; font-size: 90%;">
             <div class="row text-center">
@@ -167,6 +144,14 @@ disable language on mobile viewport
       </transition>
 
 
+      <div class="row">
+        <div class="col-xs-12">
+
+        </div>
+      </div>
+
+
+
         <div v-if="debug" class="row">
           <div class="col-xs-12">
             <div>Active Video Conferences: {{ activeVideoConferences.length }}</div>
@@ -187,20 +172,16 @@ disable language on mobile viewport
 
 
     <footer class="swi-footer-bottom swi-footer-bottom-subsite">
-
       <div class="container clearfix">
-
         <div class="swi-footer-breadcrumb pull-left">
           <ol class="breadcrumb">
             <li><a href="https://www.switch.ch/imprint/">Imprint</a></li>
             <li><a href="https://www.switch.ch/disclaimer/">Legal Notice</a></li>
           </ol>
         </div>
-
         <div class="swi-footer-copyright-subsite pull-right">
           &copy; <span><span id="year" style="margin-right: 0;"></span><script>var currYear = new Date().getFullYear(); document.querySelector("#year").innerHTML = currYear;</script> for content at SWITCH</span>
         </div>
-
       </div><!-- /.container -->
 
     </footer>
@@ -208,100 +189,314 @@ disable language on mobile viewport
 
 
     <script>
+
+/**************** VCONF COMPONENT ****************/
+    const vconf = {
+      props: {
+        uniname: {
+          type: String,
+          required: true
+        },
+        roomname: {
+          type: String,
+          required: true
+        },
+        webformbased: {
+          type: Boolean,
+          default: false
+        }
+      },
+      data: function(){
+        return {
+          vconfStarted: false,
+          vconfLeft: false,
+          errorMsg: []
+        }
+      },
+      methods:{
+        startConference: function(uniname, room) {
+          console.log("SWITCH-LOG:starting conference...");
+          console.log("SWITCH-LOG:uniname name: " + uniname + " roomname: " + room);
+          this.$emit('loading-indicator', true);
+          this.vconfStarted = true;
+
+            let domain = uniname;
+            let options = {
+                roomName: room,
+                width: '100%',
+                height: 600,
+                parentNode: document.querySelector('#viewer'),
+                configOverwrite: {
+                    startWithAudioMuted: true,
+                    startWithVideoMuted: true,
+                    disableSimulcast: false,
+                    channelLastN: 2,
+                    enableUserRolesBasedOnToken: true,
+                },
+                interfaceConfigOverwrite: {
+                  filmStripOnly: false,
+                  TOOLBAR_BUTTONS: [
+                    'closedcaptions', 'fullscreen',
+                    'fodeviceselection', 'hangup', 'chat', 'recording',
+                    'settings', 'raisehand',
+                    'feedback', 'stats',
+                    'download', 'help', 'mute-everyone'
+                  ],
+
+                  DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+                }
+            };
+            let api = new JitsiMeetExternalAPI(domain, options);
+
+            // increase number of active vconfs
+            // when a vconf is started, save the auto-generated event
+            // so we know how many vconfs the user has active
+            api.addListener('videoConferenceJoined', (object) => {
+              this.$emit('vconf-count-increased', object);
+//                this.increaseVconfCounter(object);
+            });
+
+            // decrease number of active vconfs
+            api.addListener('videoConferenceLeft', (object) => {
+
+              // send close event to parent component
+              this.$emit('vconf-count-decreased', object);
+
+              this.$emit('loading-indicator', false);
+              this.vconfStarted = false;
+              this.vconfLeft = true;
+//                this.decreaseVconfCounter(object.roomName);
+            });
+
+
+        },
+        // validate a room name
+        // return false if there is whitespace in the name
+        validRoomName: function(roomName){
+          const roomNameStr = roomName + "";
+          return roomNameStr.indexOf(' ') < 0;
+        }
+      },
+      mounted(){
+        // pre select form option field from URL (vue router param /uni/:uniname)
+        this.uniname = this.$route.params.uniname;
+
+        // pre select form input field from URL (vue router param /room/:roomname) - but validate first
+        this.roomname = this.$route.params.roomname;
+
+        if(this.validRoomName(this.roomname)){
+          console.log("SWITCH-LOG:room name is valid");
+        } else {
+          this.errorMsg.push("Room name is invalid. Does it contain whitespace?");
+        }
+
+        console.log("SWITCH-LOG:vconf is mounted");
+        console.log("SWITCH-LOG:instance: ", this.uniname);
+        console.log("SWITCH-LOG:room: ", this.roomname);
+
+
+        if(this.uniname !== undefined && this.validRoomName(this.roomname)){
+          console.log("SWITCH-LOG:directly starting conference");
+          this.startConference(this.uniname, this.roomname);
+        }
+
+      },
+      template: `
+      <div v-if="!webformbased">
+        <div v-if="vconfStarted" class="row text-center">
+          <div class="col-xs-12"><img src="images/loading.gif" height="100px" /></div>
+          <div class="col-xs-12" style="padding-top: 30px;"><h4>Starting your web conference...</h4></div>
+        </div>
+        <div v-else v-if="vconfLeft" class="text-center"><div class="">Thank you for using SWITCH conference viewer!</div><router-link to="/"><div class="btn btn-lg btn-primary" style="margin-top: 30px;">Join another meeting</div></router-link></div>
+        <div v-for="error in errorMsg" class="alert alert-danger">{{error}}</div>
+      </div>`
+
+    }
+
+
+
+    /**************** VCONF FORM COMPONENT ****************/
+    const vconfForm = {
+      data: function(){
+        return{
+          instances: [
+          'fernuni.meet.switch.ch',
+          'ffhs.meet.switch.ch',
+          'open.meet.switch.ch',
+          'unibas.meet.switch.ch',
+          'unibas.meet.switch.ch',
+          'uzh.meet.switch.ch',
+          'intern.meet.switch.ch'],
+          selectedInstance: '',
+          room: '',
+          loadingIndicator: false,
+          btnHelpEnabled: false,
+          roomHelpEnabled: false
+        }
+      },
+      methods: {
+
+          // submit the form and start the conference by calling the child component's method
+          submitForm: function(){
+            console.log("SWITCH-LOG:submitting form to vconf child component");
+            this.$refs.vconfchild.startConference(this.selectedInstance, this.room);
+          },
+          triggerBtnHelp: function(hover){
+            if (hover &!this.isFormFilledOut){
+              this.btnHelpEnabled = true;
+            } else {
+              this.btnHelpEnabled = false;
+            }
+          },
+
+          triggerRoomHelp: function(){
+            if(this.room !== undefined && (this.room.length < 3 || this.validRoomName(this.room))){
+              this.roomHelpEnabled = false;
+            } else {
+              this.roomHelpEnabled = true;
+            }
+          },
+
+          // If child sends a "videoConferenceJoined" event, throw the event incl. its object to parent for further handling
+          increaseVconfCounter: function(object){
+            console.log("SWITCH-LOG:emitting increase counter");
+            this.$emit('vconf-count-increased', object);
+
+          },
+
+          // If child sends a "videoConferenceLeft" event, throw the event incl. its object to parent for further handling
+          decreaseVconfCounter: function(object){
+            console.log("SWITCH-LOG:emitting decrease counter");
+            this.$emit('vconf-count-decreased', object);
+          },
+
+          // set the loading indicator to change the web form send button state
+          setLoadingIndicator: function(loadingIndicator){
+            this.loadingIndicator = loadingIndicator;
+          },
+
+          // validate if the room name is valid. If valid it returns true, false otherwise.
+          validRoomName: function(roomName){
+
+            return roomName !== undefined && roomName.length > 2 && !/\s/.test(roomName);
+          },
+
+      },
+      computed: {
+
+        // helper method that checks if the form has been filled out properly
+        isFormFilledOut: function(){
+          console.log("SWITCH-LOG:************** DEBUG selectedinstance name: ", this.selectedInstance);
+          console.log("SWITCH-LOG:************** DEBUG room name: ", this.room);
+          return this.selectedInstance!== undefined && this.selectedInstance.length > 2 && this.validRoomName(this.room);
+        }
+
+      },
+      components: {
+        vconf
+      },
+      created(){
+
+      },
+      template: `
+      <div>
+        <div v-if="">
+          <h4 class="text-center">Join one of the following online classes</h4><br />
+          <div class="form-horizontal" role="form">
+                  <div class="form-group">
+                    <label for="instanceSelect" class="col-sm-4 control-label">Available universities</label>
+                    <div id="jitsi-selector" class="col-sm-8">
+                      <select class="form-control" v-model="selectedInstance" id="instanceSelect">
+                        <option disabled value="">-</option>
+                          <option v-for="item in instances" :value="item" :key="item.id">
+                              {{ item }}
+                          </option>
+                      </select>
+                    </div>
+                  </div>
+                  <div id="room" class="form-group">
+                    <label data-toggle="tooltip" title="A unique identifier to determine your lection. Supplied by your teacher." data-placement="top" for="roomName" class="col-sm-4 control-label">Enter the lecture room name <span class="glyphicon glyphicon-info-sign"></span></label>
+                    <div class="col-sm-8">
+                      <input id="roomName" class="form-control" v-model="room" v-on:keydown="triggerRoomHelp" v-on:blur="triggerRoomHelp" required placeholder="Enter the lecture room name (no whitespace allowed)">
+                      <small v-if="roomHelpEnabled" style="color: #888">Whitespace is not allowed</small>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div id="startConference" v-on:mouseover="triggerBtnHelp(true)" v-on:mouseleave="triggerBtnHelp(false)" class="col-sm-offset-4 col-sm-8"><br />
+                      <button class="btn btn-lg btn-primary" :disabled="!isFormFilledOut" v-on:click="submitForm"><img v-if="loadingIndicator" src="images/loading.gif" height="20px" /> Start viewing</button> <span style="color: #888"><small v-if="btnHelpEnabled">Please choose a university and a room</small></span>
+                    </div>
+                  </div>
+
+          </div>
+        </div>
+
+        <vconf v-if="room && selectedInstance"
+        v-bind:uniname="selectedInstance"
+        v-bind:roomname="room"
+        v-bind:webformbased="true"
+        ref="vconfchild"
+        v-on:vconf-count-increased="increaseVconfCounter"
+        v-on:vconf-count-decreased="decreaseVconfCounter"
+        v-on:loading-indicator="setLoadingIndicator"
+        ></vconf>
+
+      </div>
+      `
+    };
+
+
+
+    // Rout requests to a web form or if the user already delivers the required params, start conference
+    const router = new VueRouter({
+          routes: [
+            // no conference params delivered -> show web form
+            { path: '/', component: vconfForm },
+
+            // conference params delivered -> start conference immediately
+            { path: '/uni/:uniname/room/:roomname', component: vconf},
+          ]
+        });
+
+
+        // the main Vue App
         let app = new Vue({
             el: '#app',
             data: {
-                message: 'Hello View!',
-                instances: [
-                    {name: 'fernuni.meet.switch.ch'},
-                    {name: 'ffhs.meet.switch.ch'},
-                    {name: 'open.meet.switch.ch'},
-                    {name: 'unibas.meet.switch.ch'},
-                    {name: 'uzh.meet.switch.ch'},
-                    {name: 'intern.meet.switch.ch'},
-                    ],
-                selectedInstance: '',
-                room: '',
                 activeVideoConferences: [],
                 debug: false,
-                btnHelpEnabled: false,
-                loadingIndicator: false
-
             },
             methods: {
-                start_view: function(event) {
 
-                    this.loadingIndicator = true;
+              // increase the vconf counter so we know if a conference is active
+              // in case one is active, hide web form and info texts and show only the conference
+              increaseVconfCounter: function(currentVconf){
+                this.activeVideoConferences.push(currentVconf);
+              },
 
-                    let domain = this.selectedInstance.name;
-                    let options = {
-                        roomName: this.room,
-                        width: '100%',
-                        height: 600,
-                        parentNode: document.querySelector('#viewer'),
-                        configOverwrite: {
-                            startWithAudioMuted: true,
-                            startWithVideoMuted: true,
-                            disableSimulcast: false,
-                            channelLastN: 2,
-                            enableUserRolesBasedOnToken: true,
-                        },
-                        interfaceConfigOverwrite: {
-                          filmStripOnly: false,
-                          TOOLBAR_BUTTONS: [
-                            'closedcaptions', 'fullscreen',
-                            'fodeviceselection', 'hangup', 'chat', 'recording',
-                            'settings', 'raisehand',
-                            'feedback', 'stats',
-                            'download', 'help', 'mute-everyone'
-                          ],
+              // decrease vconf counter to re-enable or re-show web form for joining another conference
+              decreaseVconfCounter: function(currentVconf) {
+                let vconfs = this.activeVideoConferences;
 
-                          DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
-                        }
-                    };
-                    let api = new JitsiMeetExternalAPI(domain, options);
+                // loops trough all active vconfs and removes the one with the same name as the one that was closed
+                this.activeVideoConferences = this.activeVideoConferences.filter(vconfs => vconfs.roomName != currentVconf.roomName);
 
-                    // increase number of active vconfs
-                    // when a vconf is started, save the auto-generated event
-                    // so we know how many vconfs the user has active
-                    api.addListener('videoConferenceJoined', (object) => {
-                      this.activeVideoConferences.push(object);
-                      this.loadingIndicator = false;
-                    });
-
-                    // decrease number of active vconfs
-                    api.addListener('videoConferenceLeft', (object) => {
-                      this.decreaseVconfCounter(object.roomName);
-
-                    });
-                },
-                decreaseVconfCounter: function(roomName) {
-                  let vconfs = this.activeVideoConferences;
-                  this.activeVideoConferences = this.activeVideoConferences.filter(vconfs => vconfs.roomName != roomName);
-
-                  // if no more vconfs are active, empty the vconf div
-                  if(this.activeVideoConferences.length < 1){
-                    document.querySelector("#viewer").innerHTML = "";
-                  }
-                },
-                triggerBtnHelp: function(hover){
-                  if (hover &!this.isFormFilledOut){
-                    this.btnHelpEnabled = true;
-                  } else {
-                    this.btnHelpEnabled = false;
-                  }
+                // if no more vconfs are active, empty the vconf div
+                if(this.activeVideoConferences.length < 1){
+                  document.querySelector("#viewer").innerHTML = "";
                 }
+              }
 
             },
             computed: {
-              // helper method that checks if the form has been filled out properly
-              isFormFilledOut: function(){
-                return this.selectedInstance.name!== undefined && this.selectedInstance.name.length > 2 && this.room.length > 2;
-              }
-            }
+
+            },
+            components: {
+              "vconf-form": vconfForm
+            },
+            router
 
         });
-
 
     </script>
 

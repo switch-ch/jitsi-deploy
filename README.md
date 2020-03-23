@@ -25,7 +25,12 @@ Things to look out for:
 * We use https://site24x7.com for monitoring. The playbook sets up automatic server monitoring. Again,
   remove the `site24x7` role from `provision.yml`
   
-Crete your own directories for `group_vars`, `hosts_vars` and `inventory` 
+Create your own directories for `group_vars`, `hosts_vars` and `inventory` 
+Or use the ansible-galaxy approach, then use
+
+    $ cd ansible
+    $ ansible-galaxy install -fr roles/requirements.yml
+
   
 ## Adding a new service VM (this is very SWITCH specific)
 
