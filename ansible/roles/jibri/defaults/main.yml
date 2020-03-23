@@ -1,0 +1,4 @@
+---
+jibri_recordings_dir: "/srv/recordings"
+jibri_recordings_script: "/home/jibri/finalize_recordings.sh"
+jibri_jitsi_server: "{{ jitsi_fqdn }}"

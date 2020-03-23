@@ -120,6 +120,13 @@ Source credentials of the `videobridges.meet.switch.ch` project!
     $ ansible-playbook -i inventory/production main.yml --limit ORGANISATION.meet.example.com
     
 
+## Add jibri service
+There is a build script which deploys new jibri servers. **Please comment out the existing servers!**
+Source the project's `.openrc` file and run:
+
+    $ ansible-playbook -i inventory/test build_jibri_server.yml -DC
+
+This script loops over the `jibri` group and creates new hosts in the given project.
 
 ## Purge Services
 

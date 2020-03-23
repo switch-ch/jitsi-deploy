@@ -1,0 +1,51 @@
+---
+
+- include_tasks: install.yml
+
+- name: Backup old jibri.jar file
+  copy:
+    src: /opt/jitsi/jibri/jibri.jar
+    dest: /opt/jitsi/jibri/jibri-backup.jar
+    remote_src: true
+  when: installjibri.changed
+
+- name: Copy local .jar file
+  copy: 
+    src: jibri-8.0-SNAPSHOT-jar-with-dependencies.jar
+    dest: /opt/jitsi/jibri/jibri.jar
+    mode: '0644'
+    owner: root
+    group: root
+  notify: Restart jibri
+
+- name: Remove java-11
+  apt:
+    name: openjdk-11-jre-headless
+    state: absent
+
+- name: Install java-8
+  apt:
+    name: "{{item}}"
+    state: present
+  loop: 
+    - openjdk-8-jdk
+    - openjdk-8-jdk-headless
+    - openjdk-8-jre
+    - openjdk-8-jre-headless
+
+- name: Add config of jibri
+  template:
+    src: config.json.j2
+    dest: /etc/jitsi/jibri/config.json
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart jibri
+
+- name: Add finalize_script.sh
+  copy:
+    src: finalize_recordings.sh
+    dest: "{{ jibri_recordings_script }}"
+    owner: jibri
+    group: jibri
+    mode: '0755'
