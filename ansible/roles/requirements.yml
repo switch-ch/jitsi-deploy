@@ -4,3 +4,9 @@
   scm: git
   version: master
   name: users
+
+- src: git@gitlab-int.switch.ch:toolbox2/jitsi-deploy-vars.git
+  scm: git
+  version: master
+  name: jitsi-deploy-vars
+
