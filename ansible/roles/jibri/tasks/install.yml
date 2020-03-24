@@ -48,6 +48,7 @@
     line: '{ "CommandLineFlagSecurityWarningsEnabled": false }'
     path: "/etc/opt/chrome/policies/managed/managed_policies.json"
     regexp: '^{ "CommandLineFlagSecurityWarningsEnabled"'
+    create: yes
 
 - name: Install unzip
   apt:

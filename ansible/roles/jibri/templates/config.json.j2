@@ -2,7 +2,7 @@
     "recording_directory":"{{ jibri_recordings_dir }}",
     "finalize_recording_script_path": "{{ jibri_recordings_script }}",
     "xmpp_environments": [
-        {% for host in groups['jitsi'] %}
+{% for host in jibri_enabled_servers %}
         {
             "name": "prod environment {{ hostvars[host].inventory_hostname }}",
             "xmpp_server_hosts": [
@@ -26,7 +26,11 @@
             },
             "room_jid_domain_string_to_strip_from_start": "conference.",
             "usage_timeout": "0"
+{% if not loop.last %}
+        },
+{% else %}
         }
-        {% endfor %}
+{% endif %}
+{% endfor %}
     ]
 }

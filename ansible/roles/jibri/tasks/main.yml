@@ -7,7 +7,6 @@
     src: /opt/jitsi/jibri/jibri.jar
     dest: /opt/jitsi/jibri/jibri-backup.jar
     remote_src: true
-  when: installjibri.changed
 
 - name: Copy local .jar file
   copy: 
