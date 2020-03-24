@@ -1,6 +1,7 @@
 ---
 
 - include_tasks: install.yml
+- include_tasks: install.yml # Hack: One needs to install it twice!
 
 - name: Backup old jibri.jar file
   copy:
