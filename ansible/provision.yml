@@ -35,3 +35,12 @@
     - site24x7
     - nginx
     - view
+
+- name: Configure Jibris
+  hosts: jibri
+  become: yes
+  roles:
+    - role: users
+      when: not ansible_check_mode
+    - role: jibri
+      tags: jibri

@@ -163,3 +163,29 @@
 - name: update-ca-certificates
   command: update-ca-certificates -f
 
+# Section to support jibri
+- name: Register jibri agent with Prosody service.
+  command: >
+    prosodyctl register jibri auth.{{ jitsi_fqdn }} {{ jibri_user_jibri_password }}
+  args:
+    # Yes, prosody actually URL-escapes the directory name for some reason.
+    # Must hardcode the escaping in the prefix, since the replace filter only
+    # applies to the server name var, not the concatenated string.
+    creates: /var/lib/prosody/{{ 'auth%2e'+jitsi_fqdn | replace('.', '%2e') | replace('-', '%2d') }}/accounts/jibri.dat
+  when: jibri_enable
+  notify:
+  - restart jicofo
+  - restart prosody
+
+- name: Register recorder agent with Prosody service.
+  command: >
+    prosodyctl register recorder recorder.{{ jitsi_fqdn }} {{ jibri_user_recorder_password }}
+  args:
+    # Yes, prosody actually URL-escapes the directory name for some reason.
+    # Must hardcode the escaping in the prefix, since the replace filter only
+    # applies to the server name var, not the concatenated string.
+    creates: /var/lib/prosody/{{ 'recorder%2e'+jitsi_fqdn | replace('.', '%2e') | replace('-', '%2d') }}/accounts/recorder.dat
+  when: jibri_enable
+  notify:
+  - restart jicofo
+  - restart prosody
