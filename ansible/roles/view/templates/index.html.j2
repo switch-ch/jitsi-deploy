@@ -23,7 +23,7 @@
     <script src="js/scripts.min.js"></script>
 <!--
 switch when developping
--->    <script src="js/vue/vue.min.js"></script>
+-->    <script src="js/vue/vue.js"></script>
  <!--<script src="js/vue/vue.min.js"></script> -->
     <script src="js/vue/vue-router.js"></script>
     <script src="js/jitsi/external_api.js"></script>
@@ -190,6 +190,9 @@ language selector on mobile viewport
 
     <script>
 
+// enable for further console logs
+var debugViewer = false;
+
 /**************** VCONF COMPONENT ****************/
     const vconf = {
       props: {
@@ -215,8 +218,11 @@ language selector on mobile viewport
       },
       methods:{
         startConference: function(uniname, room) {
-          console.log("SWITCH-LOG:starting conference...");
-          console.log("SWITCH-LOG:uniname name: " + uniname + " roomname: " + room);
+          if(debugViewer){
+            console.log("SWITCH-LOG:starting conference...");
+            console.log("SWITCH-LOG:uniname name: " + uniname + " roomname: " + room);
+          }
+
           this.$emit('loading-indicator', true);
           this.vconfStarted = true;
 
@@ -290,9 +296,11 @@ language selector on mobile viewport
           this.errorMsg.push("Room name is invalid. Does it contain whitespace?");
         }
 
-        console.log("SWITCH-LOG:vconf is mounted");
-        console.log("SWITCH-LOG:instance: ", this.uniname);
-        console.log("SWITCH-LOG:room: ", this.roomname);
+        if(debugViewer){
+          console.log("SWITCH-LOG:vconf is mounted");
+          console.log("SWITCH-LOG:instance: ", this.uniname);
+          console.log("SWITCH-LOG:room: ", this.roomname);
+        }
 
 
         if(this.uniname !== undefined && this.validRoomName(this.roomname)){
@@ -394,8 +402,9 @@ language selector on mobile viewport
 
           // validate if the room name is valid. If valid it returns true, false otherwise.
           validRoomName: function(roomName){
+            var inputRegex = /\?|\&|:|\'|\"|\%|\#|\s/;
 
-            return roomName !== undefined && roomName.length > 2 && !/\s/.test(roomName);
+            return roomName !== undefined && roomName.length > 2 && !inputRegex.test(roomName);
           },
 
       },
@@ -403,8 +412,10 @@ language selector on mobile viewport
 
         // helper method that checks if the form has been filled out properly
         isFormFilledOut: function(){
-          console.log("SWITCH-LOG:************** DEBUG selectedinstance name: ", this.selectedInstance);
-          console.log("SWITCH-LOG:************** DEBUG room name: ", this.room);
+          if(debugViewer){
+            console.log("SWITCH-LOG:************** DEBUG selectedinstance name: ", this.selectedInstance);
+            console.log("SWITCH-LOG:************** DEBUG room name: ", this.room);
+          }
           return this.selectedInstance!== undefined && this.selectedInstance.length > 2 && this.validRoomName(this.room);
         }
 
@@ -434,8 +445,8 @@ language selector on mobile viewport
                   <div id="room" class="form-group">
                     <label data-toggle="tooltip" title="A unique identifier to determine your lection. Supplied by your teacher." data-placement="top" for="roomName" class="col-sm-4 control-label">Enter the lecture room name <span class="glyphicon glyphicon-info-sign"></span></label>
                     <div class="col-sm-8">
-                      <input id="roomName" class="form-control" v-model="room" v-on:keydown="triggerRoomHelp" v-on:blur="triggerRoomHelp" required placeholder="Enter the lecture room name (no whitespace allowed)">
-                      <small v-if="roomHelpEnabled" style="color: #888">Whitespace is not allowed</small>
+                      <input id="roomName" class="form-control" v-model="room" v-on:keyup="triggerRoomHelp" v-on:blur="triggerRoomHelp" required placeholder="Enter the lecture room name (no whitespace allowed)">
+                      <small v-if="roomHelpEnabled" style="color: #888">No white space or any of these: ?, &, :, ', ", %, #</small>
                     </div>
                   </div>
 
@@ -516,6 +527,25 @@ language selector on mobile viewport
         });
 
     </script>
+
+{% if matomo_enabled %}
+    <!-- Matomo -->
+    <script>
+      var _paq = _paq || [];
+      _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+      _paq.push(["setCookieDomain", "{{matomo_cookie_domain}}"]);
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="{{matomo_svr}}";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', '{{matomo_side_id}}']);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+    <!-- End Matomo Code -->
+{% endif %}
 
   </body>
 </html>

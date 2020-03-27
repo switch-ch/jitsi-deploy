@@ -1,0 +1,12 @@
+# Matomo web statistics
+# if true, matomo <script> tag will be included in start page
+matomo_enabled: false
+
+# web server without http://, e.g. www.myserver.com/matomo/
+matomo_svr: null
+
+# for which hostnames shall cookies be enabled? e.g. *.meet.myserver.ch
+matomo_cookie_domain: null
+
+# Matomo Site ID - Integer - provided by your Matomo instance after setting up a new site
+matomo_site_id: -1

@@ -1,8 +1,8 @@
 ---
 
 - name: Jitsi | SWITCHspecific Welcome Page Additions
-  copy:
-    src: welcomePageAdditionalContent.html
+  template:
+    src: welcomePageAdditionalContent.html.j2
     dest: /usr/share/jitsi-meet/static/welcomePageAdditionalContent.html
     mode: 0644
   tags:

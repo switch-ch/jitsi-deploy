@@ -1,0 +1,79 @@
+<template id = "welcome-page-additional-content-template">
+
+<div class="welcome-page-content">
+
+    <div class="welcome-footer">
+        <!--<div class="welcome-footer-curve"></div>-->
+        <div class="welcome-footer-content">
+            <div class="welcome-footer-about">
+                <div>
+			<br />Please use <a href="https://www.google.com/chrome/">Google Chrome</a> for the best experience.<br /> SWITCH Meet is powered by <a href="https://www.github.com/jitsi" rel="noopener" target="_blank">jitsi</a>.<br /><br /><br />&copy; <script>var currYear = new Date().getFullYear(); document.querySelector("#year").innerHTML = currYear;</script><span id="year"></span> for content at SWITCH. | <a href="https://help.switch.ch/meet/">Help</a> | <a href="https://www.switch.ch/about/imprint/">Imprint</a> | <a href="https://www.switch.ch/about/disclaimer/">Legal notice</a>
+                </div>
+            </div>
+
+	    <!--
+            <div class="welcome-footer-connect">
+                <div class="welcome-footer-connect-links">
+                    <ul>
+                        <li><a href="https://www.linkedin.com/company/8x8/" rel="noopener" target="_blank"><img src="images/welcome_page/linkedin.svg"></a></li>
+                        <li><a href="https://www.github.com/jitsi" rel="noopener" target="_blank"><img src="images/welcome_page/github.svg"></a></li>
+                        <li><a href="https://www.twitter.com/SWITCH_ch" rel="noopener" target="_blank"><img src="https://www.switch.ch/export/system/modules/ch.SWITCH.ocms.www/resources/images/footer_twitter.png"></a></li>
+                    </ul>
+                </div>
+            </div>
+
+	    -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Room name input validation and user feedack
+// 27.03.2020, SWITCH, ye
+let warningLabel = document.createElement("label");
+warningLabel.setAttribute("style", "color: red; font-weight: 700;");
+let warningTxt = document.createTextNode("No white space or any of these: ?, &, :, ', \", %, # ");
+
+let inputField = document.querySelector("#enter_room_field");
+inputField.parentNode.insertBefore(warningLabel, inputField);
+
+let startBtn = document.querySelector("#enter_room_button");
+
+inputField.addEventListener("keyup", event => {
+
+  var inputRegex = /\?|\&|:|\'|\"|\%|\#|\s/;
+
+  // if bad values in field, inform user and hide button
+  if(inputField.value !== undefined && inputRegex.test(inputField.value)){
+    warningLabel.appendChild(warningTxt);
+    startBtn.setAttribute("style", "display: none;");
+
+  // if input OK, remove warning and show button
+  } else {
+    warningLabel.innerHTML = "";
+    startBtn.removeAttribute("style");
+  }
+
+});
+</script>
+
+{% if matomo_enabled %}
+    <!-- Matomo -->
+    <script>
+      var _paq = _paq || [];
+      _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+      _paq.push(["setCookieDomain", "{{matomo_cookie_domain}}"]);
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="{{matomo_svr}}";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', '{{matomo_side_id}}']);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+    <!-- End Matomo Code -->
+{% endif %}
+
+</template>
