@@ -3,7 +3,7 @@
 matomo_enabled: false
 
 # web server without http://, e.g. www.myserver.com/matomo/
-matomo_svr: null
+matomo_server: null
 
 # for which hostnames shall cookies be enabled? e.g. *.meet.myserver.ch
 matomo_cookie_domain: null
