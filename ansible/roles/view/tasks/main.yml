@@ -8,6 +8,17 @@
     src: public
     dest: /usr/share/view
 
+# build start page
+- name: Generate index.html from template
+  template:
+    src: index.html.j2
+    dest: /usr/share/view/public/index.html
+    owner: root
+    group: root
+    mode: "0644"
+  tags:
+    - view
+
 # We don't distribute our webfonts directory and styles, so it's on the server and we link it
 # here. You will need to come up with your own solution for styles
 

@@ -41,7 +41,7 @@ let startBtn = document.querySelector("#enter_room_button");
 
 inputField.addEventListener("keyup", event => {
 
-  var inputRegex = /\?|\&|:\'|\"|\%|\#|\s/;
+  var inputRegex = /\?|\&|:|\'|\"|\%|\#|\s/;
 
   // if bad values in field, inform user and hide button
   if(inputField.value !== undefined && inputRegex.test(inputField.value)){
@@ -57,22 +57,23 @@ inputField.addEventListener("keyup", event => {
 });
 </script>
 
+{% if matomo_enabled %}
+    <!-- Matomo -->
+    <script>
+      var _paq = _paq || [];
+      _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+      _paq.push(["setCookieDomain", "{{matomo_cookie_domain}}"]);
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//{{matomo_server}}";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', '{{matomo_side_id}}']);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+    <!-- End Matomo Code -->
+{% endif %}
 
-
-<!-- Matomo -->
-<script type="text/javascript">
-  var _paq = _paq || [];
-  _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-  _paq.push(["setCookieDomain", "*.meet.switch.ch"]);
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="//www.switch.ch/tracker/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '22']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-<!-- End Matomo Code -->
 </template>
