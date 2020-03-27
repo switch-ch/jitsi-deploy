@@ -189,3 +189,13 @@
   notify:
   - restart jicofo
   - restart prosody
+
+- name: cron to restart Prosody nightly
+  cron:
+    name: restart prosody
+    hour: "3"
+    minute: "55"
+    user: root
+    job: "service prosodoy restart"
+    cron_file: restart_prosody
+  when: not videobridge_only
