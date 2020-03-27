@@ -1,0 +1,15 @@
+# Check health of Vidobridges
+#
+#     ansible-galaxy install -fr roles/requirements.yml
+#
+---
+- name: check health
+  hosts: videobridge
+  become: yes
+  tasks:
+    - name: "Check if REST_API"
+      uri:
+        url: http://localhost:8080/about/health
+      register: health
+    - debug: msg={{ health }}
+
