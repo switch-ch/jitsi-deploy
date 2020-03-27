@@ -4,4 +4,4 @@ ansible/vault_password
 ansible/roles/users/*
 .idea/*
 .DS_Store
-
+ansible/galaxy/*

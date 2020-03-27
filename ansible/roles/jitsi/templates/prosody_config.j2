@@ -51,6 +51,7 @@ Component "conference.{{ jitsi_fqdn }}" "muc"
     admins = { "focus@auth.{{ jitsi_fqdn }}" }
 
 -- internal muc component
+-- Note: This is also used from jibris
 Component "internal.auth.{{ jitsi_fqdn }}" "muc"
     modules_enabled = {
       "ping";
@@ -73,3 +74,10 @@ Component "speakerstats.{{ jitsi_fqdn }}" "speakerstats_component"
 
 Component "conferenceduration.{{ jitsi_fqdn }}" "conference_duration_component"
     muc_component = "conference.{{ jitsi_fqdn }}"
+
+VirtualHost "recorder.{{ jitsi_fqdn }}"
+    modules_enabled = {
+        "ping";
+    }
+    authentication = "internal_plain"
+    c2s_require_encryption = false

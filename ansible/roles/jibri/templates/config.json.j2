@@ -1,0 +1,36 @@
+{
+    "recording_directory":"{{ jibri_recordings_dir }}",
+    "finalize_recording_script_path": "{{ jibri_recordings_script }}",
+    "xmpp_environments": [
+{% for host in jibri_enabled_servers %}
+        {
+            "name": "prod environment {{ hostvars[host].inventory_hostname }}",
+            "xmpp_server_hosts": [
+                "{{ hostvars[host].inventory_hostname }}"
+            ],
+            "xmpp_domain": "{{ hostvars[host].inventory_hostname }}",
+            "control_login": {
+                "domain": "auth.{{ hostvars[host].inventory_hostname }}",
+                "username": "jibri",
+                "password": "jibriauthpass"
+            },
+            "control_muc": {
+                "domain": "internal.auth.{{ hostvars[host].inventory_hostname }}",
+                "room_name": "JibriBrewery",
+                "nickname": "{{ inventory_hostname }}"
+            },
+            "call_login": {
+                "domain": "recorder.{{ hostvars[host].inventory_hostname }}",
+                "username": "recorder",
+                "password": "jibrirecorderpass"
+            },
+            "room_jid_domain_string_to_strip_from_start": "conference.",
+            "usage_timeout": "0"
+{% if not loop.last %}
+        },
+{% else %}
+        }
+{% endif %}
+{% endfor %}
+    ]
+}

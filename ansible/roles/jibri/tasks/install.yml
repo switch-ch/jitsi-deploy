@@ -1,0 +1,117 @@
+---
+- name: Add linux-image-extra-virtual
+  apt:
+    name: linux-image-extra-virtual
+    update_cache: yes
+    state: present
+
+- name: Add the snd-aloop kernel module
+  modprobe:
+    name: snd-aloop
+    state: present
+
+- name: Add ppa:mc3man/bionic-media repo
+  apt_repository:
+    repo: ppa:mc3man/bionic-media
+    state: present
+
+- name: Install ffmpeg
+  apt:
+    name: ffmpeg
+    state: present
+    update_cache: yes
+
+- name: Add google apt_key
+  apt_key:
+    url: https://dl-ssl.google.com/linux/linux_signing_key.pub
+    state: present
+
+- name: Add google repo
+  apt_repository:
+    repo: deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
+    state: present
+
+- name: Install google-chrome-stable
+  apt:
+    name: google-chrome-stable
+    state: present
+
+- name: Create dir /etc/opt/chrome/policies/managed
+  file:
+    path: /etc/opt/chrome/policies/managed
+    state: directory
+    owner: root
+    group: root
+
+- name: Add google managed.policy
+  lineinfile:
+    line: '{ "CommandLineFlagSecurityWarningsEnabled": false }'
+    path: "/etc/opt/chrome/policies/managed/managed_policies.json"
+    regexp: '^{ "CommandLineFlagSecurityWarningsEnabled"'
+    create: yes
+
+- name: Install unzip
+  apt:
+    name: unzip
+    state: present
+
+- name: Get current google release
+  uri: 
+    url: http://chromedriver.storage.googleapis.com/LATEST_RELEASE
+    return_content: yes
+  register: googleversion
+
+- debug: msg="GoogleVersion - {{ googleversion.content }}"
+
+- name: Unarchive a file that needs to be downloaded (added in 2.0)
+  unarchive:
+    src: http://chromedriver.storage.googleapis.com/{{ googleversion.content }}/chromedriver_linux64.zip
+    dest: /usr/local/bin/
+    remote_src: yes
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install different packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - default-jre-headless 
+    - ffmpeg
+    - curl
+    - alsa-utils 
+    - icewm
+    - xdotool
+    - xserver-xorg-input-void
+    - xserver-xorg-video-dummy
+
+- name: Add jitsi key
+  apt_key:
+    url: https://download.jitsi.org/jitsi-key.gpg.key
+    state: present
+
+- name: Add jitsi repo
+  apt_repository:
+    repo: 'deb https://download.jitsi.org stable/'
+    state: present
+
+- name: Install jibri
+  apt: 
+    name: jibri
+    state: present
+    update_cache: yes
+
+- name: Add jibri user to required groups
+  user:
+    name: jibri
+    groups: adm,audio,video,plugdev
+    append: yes
+
+- name: Create recordings folder
+  file:
+    path: "{{ jibri_recordings_dir }}"
+    state: directory
+    owner: jibri
+    group: jitsi
+
