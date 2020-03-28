@@ -26,3 +26,13 @@
     dest: /etc/jitsi/jicofo/sip-communicator.properties
     mode: 0644
   notify: restart jicofo
+
+- name: cron to restart Jicofo nightly
+  cron:
+    name: restart jicofo
+    hour: "4"
+    user: root
+    job: "service jicofo restart"
+    cron_file: restart_jicofo
+  when: not videobridge_only
+
