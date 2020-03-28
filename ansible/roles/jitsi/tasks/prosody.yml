@@ -199,3 +199,5 @@
     job: "service prosodoy restart"
     cron_file: restart_prosody
   when: not videobridge_only
+  tags:
+    - cron
