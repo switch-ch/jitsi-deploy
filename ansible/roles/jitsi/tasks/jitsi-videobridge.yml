@@ -42,18 +42,6 @@
   ignore_errors: yes
   when: videobridge_only and ( not ( conferences.json is defined and conferences.json['conferences'] == 0 ) and not ( colibristats.status is defined and colibristats.status != 200 ) )
 
-#
-#- name: replace jitsi-videobridge.jar
-#  copy:
-#    src: jitsi-videobridge-2.1-SNAPSHOT.jar
-#    dest: /usr/share/jitsi-videobridge/jitsi-videobridge.jar
-#    owner: jvb
-#    group: jitsi
-#    mode: "0644"
-#  when: videobridge_only and (( conferences.json is defined and conferences.json['conferences'] == 0 ) or ( colibristats.status is defined and colibristats.status != 200 ))
-#  ignore_errors: yes
-#  notify: restart jitsi-videobridge
-
 - name: add videobridge config
   become: yes
   tags:
