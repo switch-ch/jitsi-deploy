@@ -196,6 +196,8 @@
     hour: "3"
     minute: "55"
     user: root
-    job: "service prosodoy restart"
+    job: "/usr/sbin/service prosodoy restart >> /var/log/jitsi/restart_prososdy.log 2>&1"
     cron_file: restart_prosody
   when: not videobridge_only
+  tags:
+    - cron

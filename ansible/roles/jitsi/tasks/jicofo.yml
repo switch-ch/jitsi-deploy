@@ -31,8 +31,11 @@
   cron:
     name: restart jicofo
     hour: "4"
+    minute: "0"
     user: root
-    job: "service jicofo restart"
+    job: "/usr/sbin/service jicofo restart >> /var/log/jitsi/restart_jicofo.log 2>&1"
     cron_file: restart_jicofo
   when: not videobridge_only
+  tags:
+    - cron
 
