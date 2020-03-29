@@ -62,6 +62,7 @@
   register: googleversion
 
 - debug: msg="GoogleVersion - {{ googleversion.content }}"
+  when: not ansible_check_mode
 
 - name: Unarchive a file that needs to be downloaded (added in 2.0)
   unarchive:
@@ -71,6 +72,8 @@
     owner: root
     group: root
     mode: '0755'
+    creates: /usr/local/bin/chromedriver
+  when: not ansible_check_mode
 
 - name: Install different packages
   apt:
@@ -93,7 +96,7 @@
 
 - name: Add jitsi repo
   apt_repository:
-    repo: 'deb https://download.jitsi.org stable/'
+    repo: 'deb https://download.jitsi.org unstable/'
     state: present
 
 - name: Install jibri
@@ -114,4 +117,3 @@
     state: directory
     owner: jibri
     group: jitsi
-

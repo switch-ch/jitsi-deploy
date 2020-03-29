@@ -1,0 +1,23 @@
+#!/bin/bash
+
+echo "Uploading process was started...."
+RECORDINGS_DIR=$1
+
+# Initialization of the parameters
+if [ -d "$RECORDINGS_DIR" ]; then
+  FILE=$(/usr/bin/find $RECORDINGS_DIR -name "*.mp4" -type f -exec echo {} \;)
+fi
+
+FILENAME=$(basename $FILE)
+CONFIG={{jibri_recording_S3_config_path}}
+
+if [ -f "$FILE" ] && [ -f "$CONFIG" ]; then
+    echo "Uploading the file: "$FILENAME
+    s3cmd -c $CONFIG put $FILE s3://{{jibri_recording_S3_bucketname}}/$FILENAME
+    echo "Upload completed!"
+else
+    echo "The file could not be saved. Missing config file or missing mp4 file."
+fi
+
+echo "Uploading script finished gracefully."
+exit 0

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+OPT_DAYS='-mtime +2'
+DIR=$1
+REGEXP="*.mp4"
+
+echo "Delete older files in directory"
+
+if [ -d "$DIR" ]; then
+  FILES=$(/usr/bin/find $DIR -name $REGEXP -type f $OPT_DAYS -exec echo {} \;)
+  
+  for file in $FILES
+  do
+    delete_dir=$( dirname $file )
+    echo "Delete ${delete_dir}"
+    rm -rf $delete_dir
+  done
+else
+  echo "No valid directory was provided. I do nothing..."
+fi
+
+echo "Exiting the cleanup script."
+exit 0

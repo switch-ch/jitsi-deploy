@@ -1,4 +1,4 @@
 ---
 jibri_recordings_dir: "/srv/recordings"
-jibri_recordings_script: "/home/jibri/finalize_recordings.sh"
 jibri_jitsi_server: "{{ jitsi_fqdn }}"
+jibri_streaming_server_url: "rtmp://stream.meet.switch.ch/LiveApp"
