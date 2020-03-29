@@ -5,6 +5,12 @@
     update_cache: yes
     state: present
 
+- name: Add line to /etc/modules
+  lineinfile:
+    line: "snd-aloop"
+    path: /etc/modules
+    regexp: '^snd-aloop'
+
 - name: Add the snd-aloop kernel module
   modprobe:
     name: snd-aloop
