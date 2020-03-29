@@ -1,8 +1,9 @@
 {
+    "streaming_url": "{{jibri_streaming_server_url}}",
     "recording_directory":"{{ jibri_recordings_dir }}",
-    "finalize_recording_script_path": "{{ jibri_recordings_script }}",
+    "finalize_recording_script_path": "{{ jibri_recording_S3_custom_script_path }}",
     "xmpp_environments": [
-{% for host in jibri_enabled_servers %}
+{% for host in jibri_enabled_servers[ ansible_inventory_sources[0] | basename ] %}
         {
             "name": "prod environment {{ hostvars[host].inventory_hostname }}",
             "xmpp_server_hosts": [

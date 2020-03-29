@@ -1,5 +1,4 @@
 ---
-
 - include_tasks: install.yml
 - include_tasks: install.yml # Hack: One needs to install it twice!
 
@@ -42,10 +41,41 @@
     mode: '0644'
   notify: Restart jibri
 
-- name: Add finalize_script.sh
-  copy:
-    src: finalize_recordings.sh
-    dest: "{{ jibri_recordings_script }}"
-    owner: jibri
-    group: jibri
+- name: Install s3cmd
+  apt:
+    name: s3cmd
+    update_cache: yes
+    state: present
+
+- name: Add S3 config file
+  template:
+    src: s3cmd.cfg
+    dest: "{{ jibri_recording_S3_config_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Add upload_streamfile.sh
+  template:
+    src: upload_streamfile.sh.j2
+    dest: "{{ jibri_recording_S3_custom_script_path }}"
+    owner: root
+    group: root
     mode: '0755'
+
+- name: Add cronjob file
+  template:
+    src: remove_old_recordings.sh.j2
+    dest: "/usr/local/bin/remove_old_recordings.sh"
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Add cronjobs
+  cron:
+    name: "Delete old recordings {{ item }}"
+    hour: "1"
+    minute: "5"
+    job: "/usr/local/bin/remove_old_recordings.sh {{ item }} > /dev/null 2>&1"
+  loop:
+    - '/srv/recordings'
