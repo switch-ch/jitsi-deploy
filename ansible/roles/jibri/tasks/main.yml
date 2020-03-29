@@ -41,11 +41,14 @@
     mode: '0644'
   notify: Restart jibri
 
-- name: Install s3cmd
+- name: Install upload packages
   apt:
-    name: s3cmd
+    name: "{{ item }}"
     update_cache: yes
     state: present
+  loop:
+    - s3cmd
+    - jq
 
 - name: Add S3 config file
   template:
@@ -79,3 +82,9 @@
     job: "/usr/local/bin/remove_old_recordings.sh {{ item }} > /dev/null 2>&1"
   loop:
     - '/srv/recordings'
+
+- name: Enable jibri service
+  service:
+    name: jibri
+    state: started
+    enabled: yes
