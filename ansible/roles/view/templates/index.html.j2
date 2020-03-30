@@ -23,8 +23,8 @@
     <script src="js/scripts.min.js"></script>
 <!--
 switch when developping
--->    <script src="js/vue/vue.js"></script>
- <!--<script src="js/vue/vue.min.js"></script> -->
+    <script src="js/vue/vue.js"></script> -->
+    <script src="js/vue/vue.min.js"></script>
     <script src="js/vue/vue-router.js"></script>
     <script src="js/jitsi/external_api.js"></script>
   </head>
@@ -193,6 +193,22 @@ language selector on mobile viewport
 // enable for further console logs
 var debugViewer = false;
 
+
+/**************** STREAM COMPONENT ****************/
+const streamVconf = {
+  computed: {
+    getStreamingUrl: function(){
+      return "https://stream.meet.switch.ch:5443/LiveApp/play.html?name=" + this.$route.params.name;
+    }
+  },
+  template:
+  `<div>
+ <iframe width="100%" height="500" :src="getStreamingUrl" frameborder="0" allowfullscreen></iframe>
+</div>
+  `
+}
+
+
 /**************** VCONF COMPONENT ****************/
     const vconf = {
       props: {
@@ -280,20 +296,21 @@ var debugViewer = false;
         // return false if there is whitespace in the name
         validRoomName: function(roomName){
           const roomNameStr = roomName + "";
-          return roomNameStr.indexOf(' ') < 0;
+          var inputRegex = /\?|<|>|\&|:|\'|\"|\%|\#|\s/;
+          return roomNameStr !== undefined && roomName.length > 2 && !inputRegex.test(roomName);
         }
       },
       mounted(){
         // pre select form option field from URL (vue router param /uni/:uniname)
-        this.uniname = this.$route.params.uniname;
+//        this.uniname = this.$route.params.uniname;
 
         // pre select form input field from URL (vue router param /room/:roomname) - but validate first
-        this.roomname = this.$route.params.roomname;
+//        this.roomname = this.$route.params.roomname;
 
         if(this.validRoomName(this.roomname)){
           console.log("SWITCH-LOG:room name is valid");
         } else {
-          this.errorMsg.push("Room name is invalid. Does it contain whitespace?");
+          this.errorMsg.push("Room name is invalid. Does it contain whitespace or special characters?");
         }
 
         if(debugViewer){
@@ -402,7 +419,7 @@ var debugViewer = false;
 
           // validate if the room name is valid. If valid it returns true, false otherwise.
           validRoomName: function(roomName){
-            var inputRegex = /\?|\&|:|\'|\"|\%|\#|\s/;
+            var inputRegex = /\?|<|>|\&|:|\'|\"|\%|\#|\s/;
 
             return roomName !== undefined && roomName.length > 2 && !inputRegex.test(roomName);
           },
@@ -417,7 +434,11 @@ var debugViewer = false;
             console.log("SWITCH-LOG:************** DEBUG room name: ", this.room);
           }
           return this.selectedInstance!== undefined && this.selectedInstance.length > 2 && this.validRoomName(this.room);
-        }
+        },
+
+        getVconfUrl: function(){
+          return window.location.origin + window.location.pathname + "#/" + this.selectedInstance + "/" + this.room;
+        },
 
       },
       components: {
@@ -445,14 +466,20 @@ var debugViewer = false;
                   <div id="room" class="form-group">
                     <label data-toggle="tooltip" title="A unique identifier to determine your lection. Supplied by your teacher." data-placement="top" for="roomName" class="col-sm-4 control-label">Enter the lecture room name <span class="glyphicon glyphicon-info-sign"></span></label>
                     <div class="col-sm-8">
-                      <input id="roomName" class="form-control" v-model="room" v-on:keyup="triggerRoomHelp" v-on:blur="triggerRoomHelp" required placeholder="Enter the lecture room name (no whitespace allowed)">
-                      <small v-if="roomHelpEnabled" style="color: #888">No white space or any of these: ?, &, :, ', ", %, #</small>
+                      <input id="roomName" class="form-control" v-model="room" v-on:keyup="triggerRoomHelp" v-on:blur="triggerRoomHelp" required placeholder="Enter the lecture room name">
+                      <small v-if="roomHelpEnabled" style="color: #888">No white space or any of these: ?, &, :, ', ", %, #, \<, \> </small>
                     </div>
                   </div>
 
                   <div class="form-group">
                     <div id="startConference" v-on:mouseover="triggerBtnHelp(true)" v-on:mouseleave="triggerBtnHelp(false)" class="col-sm-offset-4 col-sm-8"><br />
                       <button class="btn btn-lg btn-primary" :disabled="!isFormFilledOut" v-on:click="submitForm"><img v-if="loadingIndicator" src="images/loading.gif" height="20px" /> Start viewing</button> <span style="color: #888"><small v-if="btnHelpEnabled">Please choose a university and a room</small></span>
+                    </div>
+                  </div>
+
+                  <div v-show="isFormFilledOut" class="form-group">
+                    <div class="col-sm-offset-4 col-sm-8">
+                    or use the following <a :href="getVconfUrl">direct URL</a>: <pre>{{ getVconfUrl }}</pre>
                     </div>
                   </div>
 
@@ -481,8 +508,12 @@ var debugViewer = false;
             // no conference params delivered -> show web form
             { path: '/', component: vconfForm },
 
+            // stream URL
+            { path: '/stream/:name', component: streamVconf},
+
             // conference params delivered -> start conference immediately
-            { path: '/uni/:uniname/room/:roomname', component: vconf},
+            { path: '/:uniname/:roomname', component: vconf, props: (route) => ({uniname: route.params.uniname, roomname: route.params.roomname})}
+
           ]
         });
 
