@@ -1,7 +1,5 @@
 ---
 - include_tasks: install.yml
-- include_tasks: install.yml # Hack: One needs to install it twice!
-
 - name: Backup old jibri.jar file
   copy:
     src: /opt/jitsi/jibri/jibri.jar
@@ -16,21 +14,6 @@
     owner: root
     group: root
   notify: Restart jibri
-
-- name: Remove java-11
-  apt:
-    name: openjdk-11-jre-headless
-    state: absent
-
-- name: Install java-8
-  apt:
-    name: "{{item}}"
-    state: present
-  loop: 
-    - openjdk-8-jdk
-    - openjdk-8-jdk-headless
-    - openjdk-8-jre
-    - openjdk-8-jre-headless
 
 - name: Add config of jibri
   template:
