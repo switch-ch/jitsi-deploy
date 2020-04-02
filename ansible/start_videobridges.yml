@@ -5,8 +5,8 @@
   os_volume:
       display_name: "{{ item.split('.')[0] | lower }}-root"
       image: "{{ jitsi_vb_vm_image }}"
-      volume_type: "ceph-standard"
-      size: "20"
+      volume_type: "{{ jitsi_vb_volume_type }}"
+      size: "{{ jitsi_vb_volume_size }}"
 
 - name: "Launch Videobridge VM and generate IPv4"
   os_server:
@@ -19,19 +19,17 @@
       nics:
       - net-name: "{{ jitsi_vb_vm_network }}"
       security_groups:
-      - "SSH"
-      - "jitsi"
+      - SSH
+      - jitsi-videobridge
       wait: yes
   register: vb
   when: not ansible_check_mode
 
 - debug:
     msg:
-      - "Server private IPv4: {{ vb.openstack.private_v4 }}"
       - "Server IPv4: {{ vb.openstack.public_v4 }}"
       - "Server IPv6: {{ vb.openstack.public_v6 }} "
-      - "Insert the values into ./host_vars/HOSTNAME/vars.yml and vault.yml. Add callstats.io and ssl certs."
       - "Videobridge IPv4: {{ vb.openstack.public_v4 }}"
-      - "Add hosts to ./inventory/UNINAME"
-      - "Call: ansible-playbook -i inventory/UNINAME main.yml "
+      - "Add hosts IPv4 to inventory: {{ vb.openstack.name }}.videobridges.meet.switch.ch ansible_host={{ vb.openstack.public_v4 }}"
+      - "Call: ansible-playbook -i inventory/production main.yml --limit {{ vb.openstack.name }}.videobridges.meet.switch.ch"
   when: not ansible_check_mode

@@ -12,7 +12,7 @@
 #
 ###
 
-- name: Create and launch mailbox VM
+- name: Create and launch jitsi VM
   hosts: localhost
   tasks:
   - name: Create root volume
