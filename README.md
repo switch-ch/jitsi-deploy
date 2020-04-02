@@ -4,7 +4,7 @@
 
 SWITCH is the Swiss National Research and Network (NREN) and provides various IT services
 to Swiss higher education institutions. This ansible playbook is used to set up
-a cluster of individual Jitsi Frontend servers (one for each insitiution) that share a 
+a cluster of individual Jitsi Frontend servers (one for each insitiution) that share a
 pool of videobridges. This is a brand new service that was started during the Covid19 crisis
 in March 2020. A service description can be found at https://switch.ch/meet
 
@@ -15,7 +15,7 @@ The setup is geared towards our needs and will most likely not work out of the b
 
 Things to look out for:
 
-* We provision VMs on our internal IaaS cloud SWITChengines (https://switch.ch/engines) using the 
+* We provision VMs on our internal IaaS cloud SWITChengines (https://switch.ch/engines) using the
   `build*servers` playbooks. You will need to adapt that to your environment
 * We use an internal ansible role (`users`) that provisions our admin users onto our VMs. You will
   need to roll your own. For now, remove the `users` role entry in `provision.yml`
@@ -24,19 +24,19 @@ Things to look out for:
   need to know how that works. Remove the `shib` role entry in `provision.yml`
 * We use https://site24x7.com for monitoring. The playbook sets up automatic server monitoring. Again,
   remove the `site24x7` role from `provision.yml`
-  
-Create your own directories for `group_vars`, `hosts_vars` and `inventory` 
+
+Create your own directories for `group_vars`, `hosts_vars` and `inventory`
 Or use the ansible-galaxy approach, then use
 
     $ cd ansible
     $ ansible-galaxy install -fr roles/requirements.yml
 
-  
+
 ## Adding a new service VM (this is very SWITCH specific)
 
 The building process was automated while deploying the different instances. Accordingly, not all `host_vars` contain the necessary information.
 
-To install a new host, you can copy the `host_vars/template.meet.example.com` folder. 
+To install a new host, you can copy the `host_vars/template.meet.example.com` folder.
 Initially, you only have to insert the VM variables. Just like `jitsi-ORGANISATION`...
 
 Source the corresponding project using `openrc.sample` as a guidance.
@@ -63,8 +63,8 @@ Then please do: (IP information is displayed after the build execution.)
   * vault_callstats_io_secret: ''
   * vault_nginx_ssl_key: |
   * paste the private key
-* run the playbook `ansible-playbook -i inventory/production main.yml --limit name-of-uni.meet.meet.switch.ch` 
-* login to the server and get the fingerprint of the AAI Shib certificate and `/etc/shibboleth/sp-cert.pem`  
+* run the playbook `ansible-playbook -i inventory/production main.yml --limit name-of-uni.meet.meet.switch.ch`
+* login to the server and get the fingerprint of the AAI Shib certificate and `/etc/shibboleth/sp-cert.pem`
   `openssl x509 -in /etc/shibboleth/sp-cert.pem -fingerprint -sha1 -noout`
 * copy the `sp-cert.pem` and `sp-key.pem` to your local machine and add them to the host_var and the vault respectively
 * create the RR request at https://rr.aai.switch.ch
@@ -81,7 +81,7 @@ Then please do: (IP information is displayed after the build execution.)
   * Audience:
     * Limit to the requesting organisation
     * exclude the EduID
-  * Paste the Fingerprint into the comment field at the end    
+  * Paste the Fingerprint into the comment field at the end
 * wait
 
 
@@ -111,14 +111,14 @@ Source credentials of the `videobridges.meet.switch.ch` project!
 * Add new entry in `inventory/production` in the section `videobridge`.
 * Run the following command to build (Temporarily comment out the existing hosts in `inventory/production [videobridge]` otherwise the script will block the creation of the new servers!)
 
-    $ ansible-playbook build_videobridge_servers.yml --extra-vars=@./host_vars/videobridges.meet.switch.ch/vars.yml -D
+    $ ansible-playbook build_videobridge_servers.yml -D
 
 * Write the IPs in `inventory/production` in the section `videobridge`
-* Assure that you filled in the `callstats.io` credentials
+* Assure that you filled in the `callstats.io` credentials in `group_vars/videobrdiges/vars.yml`
 * Execute the following playbook:
 
-    $ ansible-playbook -i inventory/production main.yml --limit ORGANISATION.meet.example.com
-    
+    $ ansible-playbook -i inventory/production main.yml -e ansible_user=ubuntu --limit jitsi-videobridge-XXXX.videobridges.meet.switch.ch
+
 
 ## Add jibri service
 There is a build script which deploys new jibri servers. **Please comment out the existing servers!**
