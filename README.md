@@ -106,6 +106,14 @@ Example:
 
 ## Add a new videobridge server
 
+### switch-net
+
+The new [Transform's switch-net](https://gitlab-int.switch.ch/transform/transform-net) gives us unNATed, unfiltered IP addresses (IPv4 and IPv6) in the SWITCH network ranges.
+
+The `switch-net` were add to the `videobridges.meet.switch.ch` project in ZH and LS as decribed in [Self-Service Port Allocation](https://gitlab-int.switch.ch/transform/transform-net#self-service-port-allocation)
+
+### Create and provision videobridge server
+
 Source credentials of the `videobridges.meet.switch.ch` project!
 
 * Add new entry in `inventory/production` in the section `videobridge`.
