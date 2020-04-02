@@ -1,7 +1,10 @@
 ---
 ###
-# Source you openstack project credentials, adjust the ORGANISATION and run:
-# ansible-playbook build_jibri_server.yml -D
+# * Add a new host into the inventory, e.g. inventory/production
+# * Comment out ALL other jibri hosts to speed up the deployment (script loops over jibri group)
+# * Source you openstack project credential
+# * Run the playbook:
+#    ansible-playbook -i inventory/production build_jibri_server.yml -D
 ###
 
 - name: Create and launch jibri VM
@@ -22,6 +25,7 @@
         rules:
           - { proto: tcp, port_min: 22, port_max: 22, type: IPv6, prefix: "::/0"}
           - { proto: tcp, port_min: 22, port_max: 22, type: IPv4, prefix: "0.0.0.0/0"}
+
   tasks:
   - name: Create security groups
     os_security_group:

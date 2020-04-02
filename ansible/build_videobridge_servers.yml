@@ -1,8 +1,10 @@
 ---
 ###
-# Source you openstack project credentials, adjust the ORGANISATION and run:
-# Please check the vars
-# ansible-playbook build_videobridge_servers.yml -D
+# * Please check the vars
+# * Comment out the existing videobridges in the inventory file (to speed up the installation)
+# * Source your openstack project credentials
+# * Run the playbook:
+#     ansible-playbook build_videobridge_servers.yml -D
 ###
 
 - name: Create and launch videobridge VM
@@ -14,7 +16,7 @@
     jitsi_vb_vm_image: "Ubuntu Bionic 18.04 (SWITCHengines)"
     jitsi_vb_volume_type: "ceph-standard"
     jitsi_vb_volume_size: "20"
-    jitsi_vb_auto_ip: yes
+    jitsi_vb_auto_ip: 'yes'
     jitsi_vb_secgroups:
       - "SSH"
       - "jitsi-videobridge"
