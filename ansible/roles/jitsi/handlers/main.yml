@@ -21,6 +21,7 @@
   when: not videobridge_only
 
 - name: reload systemctl
-  shell: systemctl daemon-reload
+  systemd:
+    daemon_reload: yes
   tags:
     - jitsi
