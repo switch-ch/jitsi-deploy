@@ -1,4 +1,9 @@
 ---
+###
+# Source you openstack project credentials, adjust the ORGANISATION and run:
+# ansible-playbook build_jibri_server.yml -D
+###
+
 - name: Create and launch jibri VM
   hosts: localhost
   vars:
@@ -11,29 +16,33 @@
     stream_vm_network: "private"
     stream_vm_auto_ip: 'no'
     stream_secgroups:
-      - SSH
+      - "SSH"
+    stream_security_groups:
+      - name: "SSH"
+        rules:
+          - { proto: tcp, port_min: 22, port_max: 22, type: IPv6, prefix: "::/0"}
+          - { proto: tcp, port_min: 22, port_max: 22, type: IPv4, prefix: "0.0.0.0/0"}
   tasks:
   - name: Create security groups
     os_security_group:
       state: present
-      name: "{{ item }}"
-    loop: "{{ stream_secgroups }}"
-  - name: Add ssh rule (IPv6)
+      name: "{{ item.name }}"
+    loop: "{{ stream_security_groups }}"
+    tags: 
+      - security_group
+
+  - name: Add rules
     os_security_group_rule:
-      security_group: "SSH"
-      protocol: tcp
-      port_range_min: 22
-      port_range_max: 22
-      ethertype: IPv6
-      remote_ip_prefix: ::/0
-  - name: Add ssh rule (IPv4)
-    os_security_group_rule:
-      security_group: "SSH"
-      protocol: tcp
-      port_range_min: 22
-      port_range_max: 22
-      ethertype: IPv4
-      remote_ip_prefix: 0.0.0.0/0
+      security_group: "{{ item.0.name }}"
+      protocol: "{{ item.1.proto }}"
+      port_range_min: "{{ item.1.port_min }}"
+      port_range_max: "{{ item.1.port_max }}"
+      ethertype: "{{ item.1.type }}"
+      remote_ip_prefix: "{{ item.1.prefix }}"
+    when: item.1.proto == "tcp" or item.1.proto == "udp"
+    loop: "{{ lookup('subelements', stream_security_groups, 'rules') }}"
+    tags: 
+      - security_group
 
   - include: start_stream.yml
     loop: "{{ groups[stream_servicename] }}"
