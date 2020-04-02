@@ -1,0 +1,15 @@
+# Check health of Vidobridges
+#
+#     ansible-galaxy install -fr roles/requirements.yml
+#
+---
+- name: restart videobriges
+  hosts: videobridge
+  become: yes
+  tasks:
+    - name: "restart bridges"
+      service:
+        name: jitsi-videobridge
+        state: restarted
+
+

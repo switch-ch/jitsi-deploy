@@ -1,0 +1,19 @@
+# Check health of Vidobridges
+#
+#     ansible-galaxy install -fr roles/requirements.yml
+#
+---
+- name: check health
+  hosts: videobridge
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: "Check if REST_API"
+      uri:
+        url: http://localhost:8080/colibri/stats
+      register: conferences
+
+
+    - debug: msg={{ conferences.json['conferences'] }}
+      when: conferences.json is defined
+
