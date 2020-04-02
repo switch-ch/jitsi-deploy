@@ -5,3 +5,4 @@ ansible/roles/users/*
 .idea/*
 .DS_Store
 ansible/galaxy/*
+.history/

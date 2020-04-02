@@ -1,5 +1,5 @@
 ---
-- name: Create and launch mailbox VM
+- name: Create and launch jibri VM
   hosts: localhost
   vars:
     stream_servicename: "jibri"
@@ -10,7 +10,7 @@
     stream_vm_storage_size: 30
     stream_vm_network: "private"
     stream_vm_auto_ip: 'no'
-    stream_secgroups: 
+    stream_secgroups:
       - SSH
   tasks:
   - name: Create security groups
@@ -34,6 +34,6 @@
       port_range_max: 22
       ethertype: IPv4
       remote_ip_prefix: 0.0.0.0/0
-  
+
   - include: start_stream.yml
     loop: "{{ groups[stream_servicename] }}"
