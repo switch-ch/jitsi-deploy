@@ -40,7 +40,7 @@ The follwowing steps guides you through a building process of a new `Jitsi Meet`
 
 * Source the corresponding project, use `openrc.sample` as a guidance.
 
-      $ ansible-playbook build_jitis_server.yml -D
+      $ ansible-playbook build_jitsi_server.yml -D
 
 **Important:** Variables such as inventory, host_vars and group_vars go into `jitsi-deploy-vars` repo! (ansible-galaxy)
 *  This will display the IPv4 and IPv6 of the instance. Add the host into `inventory/production`
