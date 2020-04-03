@@ -117,7 +117,7 @@ The `switch-net` were add to the `videobridges.meet.switch.ch` project in ZH and
 * Source credentials of the `videobridges.meet.switch.ch` project!
 * Add new entry in `inventory/production` in the section `videobridge`. (LS or ZH)
 * Run the following command to build:
-  * **Important:** Comment out existing VBs in order to speed up the build process! From **both** `videobridge-zh` and `videobridge-ls`!
+  * **Important:** Comment out existing VBs in order to speed up the build process! From **both** `videobridge_zh` and `videobridge_ls`!
 
         $ ansible-playbook build_videobridge_servers.yml -D
 
@@ -131,7 +131,7 @@ The `switch-net` were add to the `videobridges.meet.switch.ch` project in ZH and
 ## Add jibri service
 * There is a build script which deploys new jibri servers. (`build_jibri_server.yml`) 
 * Add a new server to `inventory/production`
-  * **Important:** Please comment out the existing servers! From **both** `jibri-zh` and `jibri-ls`!
+  * **Important:** Please comment out the existing servers! From **both** `jibri_zh` and `jibri_ls`!
 * Source the project's `.openrc` file and run:
 
       $ ansible-playbook -i inventory/production build_jibri_server.yml -D
