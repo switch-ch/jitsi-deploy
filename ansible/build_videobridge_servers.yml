@@ -1,105 +1,71 @@
 ---
 ###
-# Please check the vars
+# * Please check the vars
+# * Comment out the existing videobridges in the inventory file (to speed up the installation)
+# * Source your openstack project credentials
+# * Run the playbook:
+#     ansible-playbook build_videobridge_servers.yml -D
 ###
 
 - name: Create and launch videobridge VM
   hosts: localhost
   vars:
     jitsi_vb_vm_flavor: "c1.xlarge" # 8 VCPU / 8GB RAM
-    jitsi_vb_ssh_key: "valery-rsa"
+    jitsi_vb_ssh_key: "bisig-rsa"
     jitsi_vb_vm_network: "switch-net"
     jitsi_vb_vm_image: "Ubuntu Bionic 18.04 (SWITCHengines)"
     jitsi_vb_volume_type: "ceph-standard"
     jitsi_vb_volume_size: "20"
+    jitsi_vb_auto_ip: 'yes'
+    jitsi_vb_secgroups:
+      - "SSH"
+      - "jitsi-videobridge"
+    jitsi_vb_security_groups:
+      - name: "SSH"
+        rules:
+          - { proto: tcp, port_min: 22, port_max: 22, type: IPv6, prefix: "::/0"}
+          - { proto: tcp, port_min: 22, port_max: 22, type: IPv4, prefix: "0.0.0.0/0"}
+      - name: "jitsi-videobridge"
+        rules:
+          - { proto: tcp, port_min: 443, port_max: 443, type: IPv6, prefix: "::/0"}
+          - { proto: tcp, port_min: 443, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: udp, port_min: 10000, port_max: 10000, type: IPv6, prefix: "::/0"}
+          - { proto: udp, port_min: 10000, port_max: 10000, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: icmp, type: IPv6, prefix: "::/0"}
+          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0"}
+
   tasks:
-  - name: Create security groups - SSH, jitsi-videobridge
+  - name: Create security groups
     os_security_group:
       state: present
-      name: "{{ item }}"
-    loop:
-        - SSH
-        - jitsi-videobridge
-  - name: Add ssh rule (IPv6)
+      name: "{{ item.name }}"
+    loop: "{{ jitsi_vb_security_groups }}"
+    tags: 
+      - security_group
+
+  - name: Add rules
     os_security_group_rule:
-      security_group: SSH
-      protocol: tcp
-      port_range_min: 22
-      port_range_max: 22
-      ethertype: IPv6
-      remote_ip_prefix: ::/0
-  - name: Add ssh rule (IPv4)
+      security_group: "{{ item.0.name }}"
+      protocol: "{{ item.1.proto }}"
+      port_range_min: "{{ item.1.port_min }}"
+      port_range_max: "{{ item.1.port_max }}"
+      ethertype: "{{ item.1.type }}"
+      remote_ip_prefix: "{{ item.1.prefix }}"
+    when: item.1.proto == "tcp" or item.1.proto == "udp"
+    loop: "{{ lookup('subelements', jitsi_vb_security_groups, 'rules') }}"
+    tags: 
+      - security_group
+
+  - name: Add rules
     os_security_group_rule:
-      security_group: SSH
-      protocol: tcp
-      port_range_min: 22
-      port_range_max: 22
-      ethertype: IPv4
-      remote_ip_prefix: 0.0.0.0/0
-  - name: Add security group rule - port 10000 (IPv4)
-    os_security_group_rule:
-      security_group: jitsi-videobridge
-      protocol: tcp
-      port_range_min: 10000
-      port_range_max: 10000
-      ethertype: IPv4
-      remote_ip_prefix: 0.0.0.0/0
-  - name: Add security group rule - port 10000 (IPv6)
-    os_security_group_rule:
-      security_group: jitsi-videobridge
-      protocol: tcp
-      port_range_min: 10000
-      port_range_max: 10000
-      ethertype: IPv6
-      remote_ip_prefix: ::/0
-  - name: Add security group rule - port 10000 udp (IPv4)
-    os_security_group_rule:
-      security_group: jitsi-videobridge
-      protocol: udp
-      port_range_min: 10000
-      port_range_max: 10000
-      ethertype: IPv4
-      remote_ip_prefix: 0.0.0.0/0
-  - name: Add security group rule - port 10000 udp (IPv6)
-    os_security_group_rule:
-      security_group: jitsi-videobridge
-      protocol: udp
-      port_range_min: 10000
-      port_range_max: 10000
-      ethertype: IPv6
-      remote_ip_prefix: ::/0
-  - name: Add security group rule - port 5347 (IPv4)
-    os_security_group_rule:
-      security_group: jitsi-videobridge
-      protocol: tcp
-      port_range_min: 5347
-      port_range_max: 5347
-      ethertype: IPv4
-      remote_ip_prefix: 0.0.0.0/0
-  - name: Add security group rule - port 5347 (IPv6)
-    os_security_group_rule:
-      security_group: jitsi-videobridge
-      protocol: tcp
-      port_range_min: 5347
-      port_range_max: 5347
-      ethertype: IPv6
-      remote_ip_prefix: ::/0
-  - name: Add security group rule - port 5222 (IPv4)
-    os_security_group_rule:
-      security_group: jitsi-videobridge
-      protocol: tcp
-      port_range_min: 5222
-      port_range_max: 5222
-      ethertype: IPv4
-      remote_ip_prefix: 0.0.0.0/0
-  - name: Add security group rule - port 5222 (IPv6)
-    os_security_group_rule:
-      security_group: jitsi-videobridge
-      protocol: tcp
-      port_range_min: 5222
-      port_range_max: 5222
-      ethertype: IPv6
-      remote_ip_prefix: ::/0
+      security_group: "{{ item.0.name }}"
+      protocol: "{{ item.1.proto }}"
+      ethertype: "{{ item.1.type }}"
+      remote_ip_prefix: "{{ item.1.prefix }}"
+    when: item.1.proto == "icmp"
+    loop: "{{ lookup('subelements', jitsi_vb_security_groups, 'rules') }}"
+    tags: 
+      - security_group
 
   - name: Create all Videobridges
     include_tasks: start_videobridges.yml

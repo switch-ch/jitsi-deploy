@@ -34,75 +34,75 @@ Or use the ansible-galaxy approach, then use
 
 ## Adding a new service VM (this is very SWITCH specific)
 
-The building process was automated while deploying the different instances. Accordingly, not all `host_vars` contain the necessary information.
+The follwowing steps guides you through a building process of a new `Jitsi Meet` instance.
 
-To install a new host, you can copy the `host_vars/template.meet.example.com` folder.
-Initially, you only have to insert the VM variables. Just like `jitsi-ORGANISATION`...
+* Initially, change `jitsi-ORGANISATION` in `build_jitsi_server.yml`.
 
-Source the corresponding project using `openrc.sample` as a guidance.
+* Source the corresponding project, use `openrc.sample` as a guidance.
 
-    $ ansible-playbook build_jitis_server.yml --extra-vars=@./host_vars/ORGANISATION.meet.switch.ch/vars.yml -D --check
+      $ ansible-playbook build_jitis_server.yml -D
 
-Note: Script might break sometimes because of API call timeouts. (state 2020-03-14)
-
-Then please do: (IP information is displayed after the build execution.)
-* Note floating IP in `inventory/production`
-* note the private ip (`10.0.x.y`)
-* ask for DNS entry `name-of-uni.meet.switch.ch` with IPv4 & IPv6 info
-* Create a new folder in `host_vars` with the name of the server (`name-of-uni.meet.switch.ch`)
-* Request a PKI certificate for the server
-* Create / copy a `vars.yaml` file and enter the following information:
-  * private IP (from above)
-  * public IPv4 (from above)
-  * Hostname
+**Important:** Variables such as inventory, host_vars and group_vars go into `jitsi-deploy-vars` repo! (ansible-galaxy)
+*  This will display the IPv4 and IPv6 of the instance. Add the host into `inventory/production`
+* Copy `host_vars/template.meet.example.com` folder, to `ORGANISATION.meet.switch.ch` and change the values such as:
+  * SSL certificate (vars.yml and vault.yml)
+  * callstat.io credentials
+    
+    **Note:** The callstats credentials can be requested on our organisation page at [callstats.io](https://dashboard.callstats.io).
+  * Think about `shibboleth`. Shall it be enabled?! If yes, set `jitsi_shib: yes` in vars.yml.
+* Ask for DNS entry `ORGANISATION.meet.switch.ch` with IPv4 & IPv6 info
+* Special Parameters:
   * Shibboleth Entity (same as Hostname)
   * WAYF - use https://www.switch.ch/aai/participants/allhomeorgs-expert/ to find it
-  * the certificate of the NGINX Server
-* Create a vault file: `ansible-vault create host_vars/name-of-uni.meet.switch.ch/vault.yml`
-* Edit the vault and add
-  * vault_callstats_io_secret: ''
-  * vault_nginx_ssl_key: |
-  * paste the private key
-* run the playbook `ansible-playbook -i inventory/production main.yml --limit name-of-uni.meet.meet.switch.ch`
-* login to the server and get the fingerprint of the AAI Shib certificate and `/etc/shibboleth/sp-cert.pem`
-  `openssl x509 -in /etc/shibboleth/sp-cert.pem -fingerprint -sha1 -noout`
-* copy the `sp-cert.pem` and `sp-key.pem` to your local machine and add them to the host_var and the vault respectively
-* create the RR request at https://rr.aai.switch.ch
-  * Name: hostname
-  * Entity ID: hostname
-  * Home Org: SWITCH
-  * Description: "VideoConf service for UNI provided by SWITCH"
-  * For support contacts:
-    * FirstName: support
-    * LastName: support
-    * mail: support@switch.ch
-  * Attributes:
-    * Required: mail, firstname, givename, uniqueid
-  * Audience:
-    * Limit to the requesting organisation
-    * exclude the EduID
-  * Paste the Fingerprint into the comment field at the end
-* wait
+* When all values are filled out (except of the shib-cert and shib-key), you can run:
 
+      $ ansible-playbook -i inventory/production main.yml -e ansible_user=ubuntu --limit new_host.meet.example.com
 
-## Ansible
+  * Remove `-e ansible_user=ubuntu` when you reinstall the host! Users will be installed during initial run.
+* You can limit the playbook runs to specific tasks with the following tags
+  * `conf` - only deploy configuration changes (and restart services where necessary)
+  * `webconf` - only deploy the web config of jitsi-meet (no service disruption)
+  * `nginx` - only install/configure Nginx
+  * `jitsi` - only install/configure Jitsi
+  * `shib` - only install/configure Shibboleth
 
-To provision a server, enter it's IP address in the `inventory/production` file with its hostname.
+  * Example:
 
-The run `ansible-playbook -i inventory/production main.yml --limit new_host.meet.example.com` to run the full
-installation.
+        $ ansible-playbook -i inventory/production main.yml --limit new.host.meet.ch --tags conf
 
-You can limit the playbook runs to specific tasks with the following tags:
+* If shiboleth is enabled --> request an RR:
+  * login to the server and get the fingerprint of the AAI Shib certificate and `/etc/shibboleth/sp-cert.pem`  
+  
+      ```
+      $ openssl x509 -in /etc/shibboleth/sp-cert.pem -fingerprint -sha1 -noout
+      ```
 
-* `conf` - only deploy configuration changes (and restart services where necessary)
-* `webconf` - only deploy the web config of jitsi-meet (no service disruption)
-* `nginx` - only install/configure Nginx
-* `jitsi` - only install/configure Jitsi
-* `shib` - only install/configure Shibboleth
+  * copy the `sp-cert.pem` and `sp-key.pem` to your local machine in `host_vars/ORGANISATION.meet.switch.ch/vars.yml | vault.yml`
+  * create the RR request at https://rr.aai.switch.ch
+    * Name: hostname
+    * Entity ID: hostname
+    * Home Org: SWITCH
+    * Description: "VideoConf service for UNI provided by SWITCH"
+    * For support contacts:
+      * FirstName: support
+      * LastName: support
+      * mail: support@switch.ch
+    * Attributes:
+      * Required: mail, firstname, givename, uniqueid
+    * Audience:
+      * Limit to the requesting organisation
+      * exclude the EduID
+    * Paste the Fingerprint into the comment field at the end    
+  * wait for the approval.
 
-Example:
+* Done. You should have a new host for the specific organisation.
 
-    $ ansible-playbook -i inventory/production main.yml --limit new.host.meet.ch --tags conf
+* **Note:** Videobridges have to be configured with the new hosts. VBs have to authenticate to the MUC on the new server. *Until then, no meetings are possible.*)
+This can be done with:
+
+      $ ansible-playbook -i inventory/production main.yml --limit videobridge -D
+
+* **Note:** Configuration will only apply when VBs are restarted. Mind the active meetings on the VB instances!!!
 
 ## Add a new videobridge server
 
@@ -114,27 +114,30 @@ The `switch-net` were add to the `videobridges.meet.switch.ch` project in ZH and
 
 ### Create and provision videobridge server
 
-Source credentials of the `videobridges.meet.switch.ch` project!
+* Source credentials of the `videobridges.meet.switch.ch` project!
+* Add new entry in `inventory/production` in the section `videobridge`. (LS or ZH)
+* Run the following command to build:
+  * **Important:** Comment out existing VBs in order to speed up the build process! From **both** `videobridge_zh` and `videobridge_ls`!
 
-* Add new entry in `inventory/production` in the section `videobridge`.
-* Run the following command to build (Temporarily comment out the existing hosts in `inventory/production [videobridge]` otherwise the script will block the creation of the new servers!)
+        $ ansible-playbook build_videobridge_servers.yml -D
 
-    $ ansible-playbook build_videobridge_servers.yml -D
-
-* Write the IPs in `inventory/production` in the section `videobridge`
-* Assure that you filled in the `callstats.io` credentials in `group_vars/videobrdiges/vars.yml`
+* Write the IPs with `ansible_host` to the host `inventory/production`
+* Assure that you filled in the `callstats.io` credentials in `group_vars/videobrdiges/vars.yml` (**Should already be present!**)
 * Execute the following playbook:
 
-    $ ansible-playbook -i inventory/production main.yml -e ansible_user=ubuntu --limit jitsi-videobridge-XXXX.videobridges.meet.switch.ch
+      $ ansible-playbook -i inventory/production main.yml -e ansible_user=ubuntu --limit jitsi-videobridge-XXXX.videobridges.meet.switch.ch
 
 
 ## Add jibri service
-There is a build script which deploys new jibri servers. **Please comment out the existing servers!**
-Source the project's `.openrc` file and run:
+* There is a build script which deploys new jibri servers. (`build_jibri_server.yml`) 
+* Add a new server to `inventory/production`
+  * **Important:** Please comment out the existing servers! From **both** `jibri_zh` and `jibri_ls`!
+* Source the project's `.openrc` file and run:
 
-    $ ansible-playbook -i inventory/test build_jibri_server.yml -DC
+      $ ansible-playbook -i inventory/production build_jibri_server.yml -D
 
-This script loops over the `jibri` group and creates new hosts in the given project.
+* **Note:** Script loops over the `jibri` group and creates new hosts in the given project.
+* Add the respective IPs into `inventory/production`
 
 ## Purge Services
 
@@ -147,6 +150,16 @@ Specify one (or more of the following tags) with `--tags ...`
   * `nginx` - remove nginx from server
   * `jitsi` - remove all traces of jitsi / prosody etc from the server
   * `jicofolog` - truncate the jicofo logs
+
+## Reinstallation of a service
+It might happen that things get broken, so you can redeploy the `Jitsi Meet` instance easily. 
+* Run:
+
+      //Purge instance
+      $ ansible-playbook -i inventory/production purge.yml --limit ORGANISATION.meet.example.com
+
+      // Reinstall services
+      $ ansible-playbook -i inventory/production main.yml --limit ORGANISATION.meet.example.com -D
 
 ## Attribution
 
