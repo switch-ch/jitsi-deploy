@@ -56,6 +56,17 @@
     tags: 
       - security_group
 
+  - name: Add rules
+    os_security_group_rule:
+      security_group: "{{ item.0.name }}"
+      protocol: "{{ item.1.proto }}"
+      ethertype: "{{ item.1.type }}"
+      remote_ip_prefix: "{{ item.1.prefix }}"
+    when: item.1.proto == "icmp"
+    loop: "{{ lookup('subelements', jitsi_vb_security_groups, 'rules') }}"
+    tags: 
+      - security_group
+
   - name: Create all Videobridges
     include_tasks: start_videobridges.yml
     loop: "{{ groups['videobridge'] }}"

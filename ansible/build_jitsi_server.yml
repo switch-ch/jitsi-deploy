@@ -33,14 +33,10 @@
           - { proto: tcp, port_min: 80, port_max: 80, type: IPv4, prefix: "0.0.0.0/0"}
           - { proto: tcp, port_min: 443, port_max: 443, type: IPv6, prefix: "::/0"}
           - { proto: tcp, port_min: 443, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
-          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:5ca1:1f0::/64"} # ZH
-          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "86.119.0.0/16"}
-          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:5ca1:2f0::/64"} # LS
-          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "86.119.0.0/16"}
-          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:5ca1:1f0::/64"} # ZH
-          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "86.119.0.0/16"}
-          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:5ca1:2f0::/64"} # ZH
-          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "86.119.0.0/16"}
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "::/0"} # ZH
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "::/0"} # ZH
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "0.0.0.0/0"}
 
           #Prepartation for switch-net
           # - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:0:5000::/64"} # ZH
@@ -73,6 +69,17 @@
       ethertype: "{{ item.1.type }}"
       remote_ip_prefix: "{{ item.1.prefix }}"
     when: item.1.proto == "tcp" or item.1.proto == "udp"
+    loop: "{{ lookup('subelements', jitsi_security_groups, 'rules') }}"
+    tags: 
+      - security_group
+
+  - name: Add rules
+    os_security_group_rule:
+      security_group: "{{ item.0.name }}"
+      protocol: "{{ item.1.proto }}"
+      ethertype: "{{ item.1.type }}"
+      remote_ip_prefix: "{{ item.1.prefix }}"
+    when: item.1.proto == "icmp"
     loop: "{{ lookup('subelements', jitsi_security_groups, 'rules') }}"
     tags: 
       - security_group
