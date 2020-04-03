@@ -16,7 +16,7 @@
     jitsi_vb_vm_image: "Ubuntu Bionic 18.04 (SWITCHengines)"
     jitsi_vb_volume_type: "ceph-standard"
     jitsi_vb_volume_size: "20"
-    jitsi_vb_auto_ip: 'yes'
+    jitsi_vb_auto_ip: "yes"
     jitsi_vb_secgroups:
       - "SSH"
       - "jitsi-videobridge"
