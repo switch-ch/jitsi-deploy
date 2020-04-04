@@ -21,35 +21,44 @@
     jitsi_vm_auto_ip: "yes"
     jitsi_vb_secgroups:
       - "SSH"
-      - "jitsi"
+      - "jitsi-meet"
+      - "http(s)"
+      # This is only needed for test.meet.switch.ch (in jitsi-frontends)
+      # - "jitsi-meet-test"
     jitsi_security_groups:
       - name: "SSH"
         rules:
           - { proto: tcp, port_min: 22, port_max: 22, type: IPv6, prefix: "::/0"}
           - { proto: tcp, port_min: 22, port_max: 22, type: IPv4, prefix: "0.0.0.0/0"}
-      - name: "jitsi"
+      - name: "jitsi-meet"
+        rules:
+          # switch-net
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:0:5000::/64"} # ZH
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "130.59.96.0/22"}
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:0:6000::/64"} # LS
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "130.59.208.0/22"}
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:0:5000::/64"} # ZH
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "130.59.96.0/22"}
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:0:6000::/64"} # LS
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "130.59.208.0/22"}
+          # ICMP
+          - { proto: icmp, type: IPv6, prefix: "::/0"}
+          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0"}
+      # This is only needed for test.meet.switch.ch (in jitsi-frontends)
+      # - name: "jitsi-meet-test"
+      #   rules:
+      #     - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:5ca1:1f0::/64"} # ZH
+      #     - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:5ca1:2f0::/64"} # LS
+      #     - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "86.119.0.0/16"}
+      #     - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:5ca1:1f0::/64"} # ZH
+      #     - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:5ca1:2f0::/64"} # LS
+      #     - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "86.119.0.0/16"}
+      - name: "http(s)"
         rules:
           - { proto: tcp, port_min: 80, port_max: 80, type: IPv6, prefix: "::/0"}
           - { proto: tcp, port_min: 80, port_max: 80, type: IPv4, prefix: "0.0.0.0/0"}
           - { proto: tcp, port_min: 443, port_max: 443, type: IPv6, prefix: "::/0"}
           - { proto: tcp, port_min: 443, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
-          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "::/0"} # ZH
-          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "0.0.0.0/0"}
-          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "::/0"} # ZH
-          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "0.0.0.0/0"}
-
-          #Prepartation for switch-net
-          # - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:0:5000::/64"} # ZH
-          # - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "130.59.96.0/22"}
-          # - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:0:6000::/64"} # LS
-          # - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "130.59.208.0/22"}
-          # - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:0:5000::/64"} # ZH
-          # - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "130.59.96.0/22"}
-          # - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:0:6000::/64"} # LS
-          # - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "130.59.208.0/22"}
-          # ICMP
-          - { proto: icmp, type: IPv6, prefix: "::/0"}
-          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0"}
 
   tasks:
   - name: Create security groups
