@@ -43,16 +43,20 @@ VirtualHost "{{ jitsi_fqdn }}"
         c2s_require_encryption = false
 
 Component "conference.{{ jitsi_fqdn }}" "muc"
+    storage = "memory"
     modules_enabled = {
         "muc_meeting_id";
         "muc_domain_mapper";
         -- "token_verification";
     }
     admins = { "focus@auth.{{ jitsi_fqdn }}" }
+    muc_room_locking = false
+    muc_room_default_public_jids = true
 
 -- internal muc component
 -- Note: This is also used from jibris
 Component "internal.auth.{{ jitsi_fqdn }}" "muc"
+    storage = "memory"
     modules_enabled = {
       "ping";
     }
