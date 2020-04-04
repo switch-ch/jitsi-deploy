@@ -10,7 +10,7 @@
 
 - name: "Launch Videobridge VM and generate IPv4"
   os_server:
-      auto_ip: yes
+      auto_ip: "{{ jitsi_vb_auto_ip }}"
       boot_volume: "{{ item.split('.')[0] | lower }}-root"
       flavor: "{{ jitsi_vb_vm_flavor }}"
       key_name: "{{ jitsi_vb_ssh_key }}"
@@ -18,9 +18,7 @@
       state: present
       nics:
       - net-name: "{{ jitsi_vb_vm_network }}"
-      security_groups:
-      - SSH
-      - jitsi-videobridge
+      security_groups: "{{ jitsi_vb_secgroups }}"
       wait: yes
   register: vb
   when: not ansible_check_mode

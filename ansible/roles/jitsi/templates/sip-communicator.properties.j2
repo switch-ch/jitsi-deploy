@@ -1,8 +1,11 @@
 org.jitsi.jicofo.ALWAYS_TRUST_MODE_ENABLED=true
 
+{% if ansible_host.split('.')[0] == '86' and ansible_host.split('.')[1] == '119'  %}
+org.ice4j.ice.harvest.NAT_HARVESTER_LOCAL_ADDRESS={{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}
+org.ice4j.ice.harvest.NAT_HARVESTER_PUBLIC_ADDRESS={{ ipify_public_ip }}
+{% else %}
 # with switch-net we don't need NATing anymore
-#org.ice4j.ice.harvest.NAT_HARVESTER_LOCAL_ADDRESS={{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}
-#org.ice4j.ice.harvest.NAT_HARVESTER_PUBLIC_ADDRESS={{ ipify_public_ip }}
+{% endif %}
 org.jitsi.videobridge.SINGLE_PORT_HARVESTER_PORT=10000
 
 org.jitsi.videobridge.ENABLE_REST_SHUTDOWN=true

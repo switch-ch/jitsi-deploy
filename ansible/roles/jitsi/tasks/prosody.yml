@@ -120,10 +120,16 @@
     - /var/lib/prosody/auth.{{ jitsi_fqdn }}.crt
     - /var/lib/prosody/auth.{{ jitsi_fqdn }}.key
 
-- name: Assure localhost mode
+- name: Assure localhost ssl cert mode/owner
   file:
-    path: "/etc/prosody/certs/localhost.key"
+    path: "{{ item }}"
+    owner: root
+    group: prosody
     mode: '0644'
+  loop:
+    - "/etc/prosody/certs/localhost.key"
+    - "/etc/prosody/certs/localhost.crt"
+    - "/etc/prosody/certs/localhost.cnf"
 
 - name: symlink prosody certs
   file:

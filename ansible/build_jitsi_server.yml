@@ -1,0 +1,131 @@
+---
+###
+# * Check the vars below and adjust "ORGANISATION", e.g. jitsi_organisation: "epfl"
+# * Source you openstack project credentials (normally jitsi-frontends)
+# * Run the playbook:
+#     ansible-playbook build_jitsi_server.yml -D
+###
+
+- name: Create and launch jitsi VM
+  hosts: localhost
+  vars:
+    jitsi_organisation: "ORGANISATION"
+    jitsi_vm_hostname: "jitsi-{{ jitsi_organisation }}"
+    jitsi_vm_rootvolume_name: "jitsi-{{ jitsi_organisation }}"
+    jitsi_vm_network: "private"
+    jitsi_vm_image: "Ubuntu Bionic 18.04 (SWITCHengines)"
+    jitsi_vm_flavor: "m1.medium"
+    jitsi_vm_ssh_key: "bisig-rsa"
+    jitsi_vm_storage_type: "ceph-standard"
+    jitsi_vm_storage_size: "20"
+    jitsi_vm_auto_ip: "yes"
+    jitsi_vb_secgroups:
+      - "SSH"
+      - "jitsi-meet"
+      - "http(s)"
+      # This is only needed for test.meet.switch.ch (in jitsi-frontends)
+      # - "jitsi-meet-test"
+    jitsi_security_groups:
+      - name: "SSH"
+        rules:
+          - { proto: tcp, port_min: 22, port_max: 22, type: IPv6, prefix: "::/0"}
+          - { proto: tcp, port_min: 22, port_max: 22, type: IPv4, prefix: "0.0.0.0/0"}
+      - name: "jitsi-meet"
+        rules:
+          # switch-net
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:0:5000::/64"} # ZH
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "130.59.96.0/22"}
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:0:6000::/64"} # LS
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "130.59.208.0/22"}
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:0:5000::/64"} # ZH
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "130.59.96.0/22"}
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:0:6000::/64"} # LS
+          - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "130.59.208.0/22"}
+          # ICMP
+          - { proto: icmp, type: IPv6, prefix: "::/0"}
+          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0"}
+      # This is only needed for test.meet.switch.ch (in jitsi-frontends)
+      # - name: "jitsi-meet-test"
+      #   rules:
+      #     - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:5ca1:1f0::/64"} # ZH
+      #     - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:5ca1:2f0::/64"} # LS
+      #     - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv4, prefix: "86.119.0.0/16"}
+      #     - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:5ca1:1f0::/64"} # ZH
+      #     - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:5ca1:2f0::/64"} # LS
+      #     - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "86.119.0.0/16"}
+      - name: "http(s)"
+        rules:
+          - { proto: tcp, port_min: 80, port_max: 80, type: IPv6, prefix: "::/0"}
+          - { proto: tcp, port_min: 80, port_max: 80, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: tcp, port_min: 443, port_max: 443, type: IPv6, prefix: "::/0"}
+          - { proto: tcp, port_min: 443, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
+
+  tasks:
+  - name: Create security groups
+    os_security_group:
+      state: present
+      name: "{{ item.name }}"
+    loop: "{{ jitsi_security_groups }}"
+    tags: 
+      - security_group
+
+  - name: Add rules
+    os_security_group_rule:
+      security_group: "{{ item.0.name }}"
+      protocol: "{{ item.1.proto }}"
+      port_range_min: "{{ item.1.port_min }}"
+      port_range_max: "{{ item.1.port_max }}"
+      ethertype: "{{ item.1.type }}"
+      remote_ip_prefix: "{{ item.1.prefix }}"
+    when: item.1.proto == "tcp" or item.1.proto == "udp"
+    loop: "{{ lookup('subelements', jitsi_security_groups, 'rules') }}"
+    tags: 
+      - security_group
+
+  - name: Add rules
+    os_security_group_rule:
+      security_group: "{{ item.0.name }}"
+      protocol: "{{ item.1.proto }}"
+      ethertype: "{{ item.1.type }}"
+      remote_ip_prefix: "{{ item.1.prefix }}"
+    when: item.1.proto == "icmp"
+    loop: "{{ lookup('subelements', jitsi_security_groups, 'rules') }}"
+    tags: 
+      - security_group
+
+  - name: Create root volume
+    os_volume:
+      display_name: "{{ jitsi_vm_rootvolume_name }}"
+      image: "{{ jitsi_vm_image }}"
+      volume_type: "{{ jitsi_vm_storage_type }}"
+      size: "{{ jitsi_vm_storage_size }}"
+    tags: 
+      - build_vm
+
+  - name: "Launch VM and generate IPv4"
+    os_server:
+      auto_ip: "{{ jitsi_vm_auto_ip }}"
+      boot_volume: "{{ jitsi_vm_rootvolume_name }}"
+      flavor: "{{ jitsi_vm_flavor }}"
+      key_name: "{{ jitsi_vm_ssh_key }}"
+      name: "{{ jitsi_vm_hostname }}"
+      state: present
+      nics:
+        - net-name: "{{ jitsi_vm_network }}"
+      security_groups: "{{ jitsi_vb_secgroups }}"
+      wait: yes
+    register: instance
+    when: not ansible_check_mode
+    tags: 
+      - build_vm
+
+  - debug:
+      msg:
+      - "Server private IPv4: {{ instance.openstack.private_v4 }}"
+      - "Server IPv4: {{ instance.openstack.public_v4 }}"
+      - "Server IPv6: {{ instance.openstack.public_v6 }}"
+      - "Insert the values in the respective inventory file. Add callstats.io, shib authentication and ssl certs into the host_vars files."
+      - "Call: ansible-playbook -i inventory/production main.yml --limit UNI.meet.example.com  -D"
+    when: not ansible_check_mode
+    tags: 
+      - build_vm
