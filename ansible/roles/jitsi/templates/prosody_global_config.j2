@@ -22,9 +22,6 @@
 -- Example: admins = { "user1@example.com", "user2@example.net" }
 admins = { }
 
--- component_ports = { 5347 }
--- component_interface = "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
-
 network_backend = "epoll"
 
 -- Enable use of libevent for better performance under high load
@@ -128,9 +125,6 @@ s2s_secure_auth = false
 -- Required for init scripts and prosodyctl
 pidfile = "/var/run/prosody/prosody.pid"
 
--- Daemonization is taken care of by the init system now
-daemonize = false
-
 -- Select the authentication backend to use. The 'internal' providers
 -- use Prosody's configured data storage to store the authentication data.
 
@@ -213,4 +207,5 @@ VirtualHost "localhost"
 --
 --Component "gateway.example.com"
 --	component_secret = "password"
+
 Include "conf.d/*.cfg.lua"

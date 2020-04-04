@@ -64,7 +64,7 @@
 
 - name: Install Jitsi Videobridge
   apt:
-    name: jitsi-videobridge
+    name: jitsi-videobridge2
     state: latest
     update_cache: yes
     cache_valid_time: 3600
