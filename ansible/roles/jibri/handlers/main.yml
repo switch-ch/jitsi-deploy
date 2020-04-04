@@ -1,5 +1,5 @@
 ---
 - name: Restart jibri
-  service: 
+  service:
     name: jibri
     state: restarted

@@ -7,7 +7,7 @@
     remote_src: true
 
 - name: Copy local .jar file
-  copy: 
+  copy:
     src: jibri-8.0-SNAPSHOT-jar-with-dependencies.jar
     dest: /opt/jitsi/jibri/jibri.jar
     mode: '0644'

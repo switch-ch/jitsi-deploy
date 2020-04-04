@@ -37,6 +37,7 @@
     - shib
   command: openssl x509 -in /etc/shibboleth/sp-cert.pem -fingerprint -sha1 -noout
   register: fingerprint
+  changed_when: false
 
 - name: shib | write supervisor config
   become: yes

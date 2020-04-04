@@ -46,18 +46,6 @@
   tags:
     - jitsi
     - webconf
-  when: jitsi_version != "shib"
-
-- name: Jitsi | set SWITCHDesign for shib
-  copy:
-    src: all_1908.css
-    dest: /usr/share/jitsi-meet/css/all.css
-    mode: 0644
-  tags:
-    - jitsi
-    - webconf
-  when: jitsi_version == "shib"
-
 
 - name: Jitsi | Interface configuration
   copy:
