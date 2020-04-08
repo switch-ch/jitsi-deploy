@@ -19,7 +19,7 @@
     jitsi_vm_storage_type: "ceph-standard"
     jitsi_vm_storage_size: "20"
     jitsi_vm_auto_ip: "yes"
-    jitsi_vb_secgroups:
+    jitsi_vm_secgroups:
       - "SSH"
       - "jitsi-meet"
       - "http(s)"
@@ -42,8 +42,12 @@
           - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv6, prefix: "2001:620:0:6000::/64"} # LS
           - { proto: tcp, port_min: 5347, port_max: 5347, type: IPv4, prefix: "130.59.208.0/22"}
           # ICMP
-          - { proto: icmp, type: IPv6, prefix: "::/0"}
-          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: icmp, type: IPv6, prefix: "::/0", state: absent }
+          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0", state: absent }
+          - { proto: icmp, type: IPv6, prefix: "2001:620::/48" } # SWITCH LAN IPv6
+          - { proto: icmp, type: IPv4, prefix: "130.59.0.0/16" } # SWITCH LAN IPv4
+          - { proto: icmp, type: IPv4, prefix: "86.119.0.0/16" } # SWITCHengines LAN IPv4
+
       # This is only needed for test.meet.switch.ch (in jitsi-frontends)
       # - name: "jitsi-meet-test"
       #   rules:
@@ -66,10 +70,10 @@
       state: present
       name: "{{ item.name }}"
     loop: "{{ jitsi_security_groups }}"
-    tags: 
+    tags:
       - security_group
 
-  - name: Add rules
+  - name: Add security rules TCP/UDP
     os_security_group_rule:
       security_group: "{{ item.0.name }}"
       protocol: "{{ item.1.proto }}"
@@ -77,20 +81,22 @@
       port_range_max: "{{ item.1.port_max }}"
       ethertype: "{{ item.1.type }}"
       remote_ip_prefix: "{{ item.1.prefix }}"
+      state: "{{ item.1.state | default(omit) }}"
     when: item.1.proto == "tcp" or item.1.proto == "udp"
     loop: "{{ lookup('subelements', jitsi_security_groups, 'rules') }}"
-    tags: 
+    tags:
       - security_group
 
-  - name: Add rules
+  - name: Add security rules ICMP
     os_security_group_rule:
       security_group: "{{ item.0.name }}"
       protocol: "{{ item.1.proto }}"
       ethertype: "{{ item.1.type }}"
       remote_ip_prefix: "{{ item.1.prefix }}"
+      state: "{{ item.1.state | default(omit) }}"
     when: item.1.proto == "icmp"
     loop: "{{ lookup('subelements', jitsi_security_groups, 'rules') }}"
-    tags: 
+    tags:
       - security_group
 
   - name: Create root volume
@@ -99,7 +105,7 @@
       image: "{{ jitsi_vm_image }}"
       volume_type: "{{ jitsi_vm_storage_type }}"
       size: "{{ jitsi_vm_storage_size }}"
-    tags: 
+    tags:
       - build_vm
 
   - name: "Launch VM and generate IPv4"
@@ -112,11 +118,11 @@
       state: present
       nics:
         - net-name: "{{ jitsi_vm_network }}"
-      security_groups: "{{ jitsi_vb_secgroups }}"
+      security_groups: "{{ jitsi_vm_secgroups }}"
       wait: yes
     register: instance
     when: not ansible_check_mode
-    tags: 
+    tags:
       - build_vm
 
   - debug:
@@ -127,5 +133,5 @@
       - "Insert the values in the respective inventory file. Add callstats.io, shib authentication and ssl certs into the host_vars files."
       - "Call: ansible-playbook -i inventory/production main.yml --limit UNI.meet.example.com  -D"
     when: not ansible_check_mode
-    tags: 
+    tags:
       - build_vm
