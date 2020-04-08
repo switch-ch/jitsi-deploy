@@ -1,0 +1,8 @@
+---
+- name: Get my public IP
+  ipify_facts:
+  when: ipify_public_ip is undefined
+  tags:
+    - coturn
+
+- include: coturn.yml

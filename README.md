@@ -119,13 +119,27 @@ The `switch-net` were add to the `videobridges.meet.switch.ch` project in ZH and
 * Run the following command to build:
   * **Important:** Comment out existing VBs in order to speed up the build process! From **both** `videobridge_zh` and `videobridge_ls`!
 
-        $ ansible-playbook build_videobridge_servers.yml -D
+        $ ansible-playbook -i inventory/production build_videobridge_servers.yml -D
 
 * Write the IPs with `ansible_host` to the host `inventory/production`
 * Assure that you filled in the `callstats.io` credentials in `group_vars/videobrdiges/vars.yml` (**Should already be present!**)
 * Execute the following playbook:
 
       $ ansible-playbook -i inventory/production main.yml -e ansible_user=ubuntu --limit jitsi-videobridge-XXXX.videobridges.meet.switch.ch
+      
+### Create and provision coturn server
+
+* Source credentials of the `videobridges.meet.switch.ch` project!
+* Add new entry in `inventory/production` in the section `coturn`. (LS or ZH)
+* Run the following command to build:
+  * **Important:** Comment out existing coturns in order to speed up the build process! From **both** `coturn_zh` and `coturn_ls`!
+
+        $ ansible-playbook -i inventory/production build_coturn_servers.yml -D
+
+* Write the IPs with `ansible_host` to the host `inventory/production`
+* Execute the following playbook:
+
+      $ ansible-playbook -i inventory/production main.yml -e ansible_user=ubuntu --limit jitsi-coturn-XXXX.meet.switch.ch
 
 
 ## Add jibri service

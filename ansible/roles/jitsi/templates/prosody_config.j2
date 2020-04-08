@@ -4,11 +4,12 @@ plugin_paths = { "/usr/share/jitsi-meet/prosody-plugins/" }
 muc_mapper_domain_base = "{{ jitsi_fqdn }}";
 
 turncredentials_secret = "{{ prosody_turncredentials_secret }}";
-
+turncredentials_port = 443;
+turncredentials_ttl = 86400;
 turncredentials = {
-  { type = "stun", host = "{{ jitsi_fqdn }}", port = "443" },
-  { type = "turn", host = "{{ jitsi_fqdn }}", port = "443", transport = "udp" },
-  { type = "turns", host = "{{ jitsi_fqdn }}", port = "443", transport = "tcp" }
+  { type = "stun", host = "test-jitsi-coturn-1001.meet.switch.ch", port = "443" },
+  { type = "turn", host = "test-jitsi-coturn-1001.meet.switch.ch", port = "443", transport = "udp" },
+  { type = "turns", host = "test-jitsi-coturn-1001.meet.switch.ch", port = "443", transport = "tcp" }
 };
 
 cross_domain_bosh = false;

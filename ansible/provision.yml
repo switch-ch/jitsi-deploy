@@ -44,3 +44,21 @@
       when: not ansible_check_mode
     - role: jibri
       tags: jibri
+
+- name: Configure Coturn
+  hosts: coturn
+  become: yes
+  vars:
+    certbot_admin_email: maps@switch.ch
+    certbot_create_if_missing: true
+    certbot_create_standalone_stop_services: []
+    certbot_certs:
+      - domains:
+          - test-jitsi-coturn-1001.meet.switch.ch
+  roles:
+    - role: users
+      when: not ansible_check_mode
+    - role: certbot
+      tags: coturn
+    - role: coturn
+      tags: coturn
