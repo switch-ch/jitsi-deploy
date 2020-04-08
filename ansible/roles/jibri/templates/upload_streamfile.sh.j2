@@ -10,9 +10,16 @@ if [ -d "$RECORDINGS_DIR" ]; then
   METADATA_FILE=$(/usr/bin/find $RECORDINGS_DIR -name "*.json" -type f -exec echo {} \;)
   SPLIT_URL=$( cat $METADATA_FILE | jq .meeting_url | tr "/." "\n" )
   BNAME="streams-"$( echo $SPLIT_URL | awk '{ print $2 }' )
+
+  METADATA_FILENAME=$( cat $METADATA_FILE | jq .filename | tr -d '"' )
+  if [ "$METADATA_FILENAME" == "null" ]; then
+    FILENAME=$(basename $FILE)
+  else
+    FILENAME="${METADATA_FILENAME}"
+  fi
+  echo "Filename is: s3://${BNAME}/${FILENAME}"
 fi
 
-FILENAME=$(basename $FILE)
 CONFIG={{jibri_recording_S3_config_path}}
 
 if [ -f "$FILE" ] && [ -f "$CONFIG" ]; then
