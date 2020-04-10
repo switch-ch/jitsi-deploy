@@ -141,6 +141,32 @@ The `switch-net` were add to the `videobridges.meet.switch.ch` project in ZH and
 
       $ ansible-playbook -i inventory/production main.yml -e ansible_user=ubuntu --limit jitsi-coturn-XXXX.meet.switch.ch
 
+#### Testing STUN/TURN
+
+To test if STUN/TURN is working, open a conference in three tabs of the browser and disable outgoing UDP packets
+to port 10000. On Mac OSX:
+
+    # set rule to block outgoing traffic udp 10000
+    $ (sudo pfctl -sr 2>/dev/null; echo "block drop out quick on en0 proto udp from any to any port = 10000 no state") | sudo pfctl -f -
+    # enable the PacketFilter (pf) firewall
+    # sudo pfctl -e
+    
+If STUN/TURN works, the images of the two "remote" participants (i.e. the other browser tabs) should continue to show
+video. In addition the note `(stun)` is added in the `Show More` information of the network data.
+
+If it doesn't work, the remote particpants will show no video (and have no audio obviously).
+
+To display information about `pf`
+    
+    # verbose listing of rules
+    $ sudo pfctl -v -s rules
+    
+To reset the firewall
+
+    # Disable pf
+    $ sudo pfctl -d
+    # Reload the default rules
+    $ sudo pfctl -f /etc/pf.conf
 
 ## Add jibri service
 * There is a build script which deploys new jibri servers. (`build_jibri_server.yml`) 
