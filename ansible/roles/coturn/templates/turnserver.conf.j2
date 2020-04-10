@@ -11,5 +11,5 @@ max-port=20000
 log-file=/var/log/turnserver.log
 verbose
 
-user=user:{{ prosody_turncredentials_secret }}
-lt-cred-mech
+static-auth-secret={{ prosody_turncredentials_secret }}
+

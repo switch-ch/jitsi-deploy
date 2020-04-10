@@ -54,7 +54,7 @@
     certbot_create_standalone_stop_services: []
     certbot_certs:
       - domains:
-          - test-jitsi-coturn-1001.meet.switch.ch
+          - {{ inventory_hostname }}
   roles:
     - role: users
       when: not ansible_check_mode

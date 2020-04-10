@@ -358,7 +358,11 @@ var config = {
         stunServers: [
 
             // { urls: 'stun:{{ jitsi_fqdn }}:443' },
-            { urls: 'stun:test-jitsi-coturn-1001.meet.switch.ch:443' }
+            {% if groups['coturn'] %}
+            {% for hosts in groups['coturn'] %}
+            { urls: '{{ hostvars[host].inventory_hostname }}:443' },
+            {% endfor %}
+            {% endif %}
         ],
 
         // Sets the ICE transport policy for the p2p connection. At the time
