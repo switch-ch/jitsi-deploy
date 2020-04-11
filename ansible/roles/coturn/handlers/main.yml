@@ -1,5 +1,5 @@
-# handlers for coturn service
 ---
+# handlers for coturn service
 
 - name: restart coturn
   service:

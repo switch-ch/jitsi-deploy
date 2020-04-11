@@ -34,8 +34,11 @@
           - { proto: tcp, port_min: 80, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
           - { proto: udp, port_min: 10000, port_max: 20000, type: IPv6, prefix: "::/0"}
           - { proto: udp, port_min: 10000, port_max: 20000, type: IPv4, prefix: "0.0.0.0/0"}
-          - { proto: icmp, type: IPv6, prefix: "::/0"}
-          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: icmp, type: IPv6, prefix: "::/0", state: absent }
+          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0", state: absent }
+          - { proto: icmp, type: IPv6, prefix: "2001:620::/48" } # SWITCH LAN IPv6
+          - { proto: icmp, type: IPv4, prefix: "130.59.0.0/16" } # SWITCH LAN IPv4
+          - { proto: icmp, type: IPv4, prefix: "86.119.0.0/16" } # SWITCHengines LAN IPv4
 
   tasks:
   - name: Create security groups

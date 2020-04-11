@@ -10,6 +10,7 @@
   lineinfile:
     path: /etc/default/coturn
     line: "TURNSERVER_ENABLED=1"
+    regexp: "^TURNSERVER_ENABLED=1"
     state: present
     backup: yes
 

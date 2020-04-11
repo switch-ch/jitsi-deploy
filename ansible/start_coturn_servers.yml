@@ -27,7 +27,7 @@
     msg:
       - "Server IPv4: {{ coturn.openstack.public_v4 }}"
       - "Server IPv6: {{ coturn.openstack.public_v6 }} "
-      - "Videobridge IPv4: {{ coturn.openstack.public_v4 }}"
+      - "Coturn IPv4: {{ coturn.openstack.public_v4 }}"
       - "Add hosts IPv4 to inventory: {{ coturn.openstack.name }}.meet.switch.ch ansible_host={{ coturn.openstack.public_v4 }}"
       - "Call: ansible-playbook -i inventory/production main.yml --limit {{ coturn.openstack.name }}.meet.switch.ch"
   when: not ansible_check_mode
