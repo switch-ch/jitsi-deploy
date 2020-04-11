@@ -1,5 +1,5 @@
-# handlers for apache2 service
 ---
+# handlers for apache2 service
 
 - name: restart jitsi-videobridge
   service:

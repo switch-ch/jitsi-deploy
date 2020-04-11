@@ -119,16 +119,59 @@ The `switch-net` were add to the `videobridges.meet.switch.ch` project in ZH and
 * Run the following command to build:
   * **Important:** Comment out existing VBs in order to speed up the build process! From **both** `videobridge_zh` and `videobridge_ls`!
 
-        $ ansible-playbook build_videobridge_servers.yml -D
+        $ ansible-playbook -i inventory/production build_videobridge_servers.yml -D
 
 * Write the IPs with `ansible_host` to the host `inventory/production`
 * Assure that you filled in the `callstats.io` credentials in `group_vars/videobrdiges/vars.yml` (**Should already be present!**)
 * Execute the following playbook:
 
       $ ansible-playbook -i inventory/production main.yml -e ansible_user=ubuntu --limit jitsi-videobridge-XXXX.videobridges.meet.switch.ch
+      
+### Create and provision coturn server
 
+* Source credentials of the `videobridges.meet.switch.ch` project!
+* Add new entry in `inventory/production` in the section `coturn`. (LS or ZH)
+* Run the following command to build:
+  * **Important:** Comment out existing coturns in order to speed up the build process! From **both** `coturn_zh` and `coturn_ls`!
+
+        $ ansible-playbook -i inventory/production build_coturn_servers.yml -D
+
+* Write the IPs with `ansible_host` to the host `inventory/production`
+* Execute the following playbook:
+
+      $ ansible-playbook -i inventory/production main.yml -e ansible_user=ubuntu --limit jitsi-coturn-XXXX.meet.switch.ch
+
+#### Testing STUN/TURN
+
+*NB*: Be sure to test this while NOT on the VPN.
+
+To test if STUN/TURN is working, open a conference in three tabs of the browser and disable outgoing UDP packets
+to port 10000. On Mac OSX:
+
+    # set rule to block outgoing traffic udp 10000
+    $ (sudo pfctl -sr 2>/dev/null; echo "block drop out quick on en0 proto udp from any to any port = 10000 no state") | sudo pfctl -f -
+    # enable the PacketFilter (pf) firewall
+    # sudo pfctl -e
+    
+If STUN/TURN works, the images of the two "remote" participants (i.e. the other browser tabs) should continue to show
+video. In addition the note `(stun)` is added in the `Show More` information of the network data.
+
+If it doesn't work, the remote participants will show no video (and have no audio obviously).
+
+To display information about `pf`
+    
+    # verbose listing of rules
+    $ sudo pfctl -v -s rules
+    
+To reset the firewall
+
+    # Disable pf
+    $ sudo pfctl -d
+    # Reload the default rules
+    $ sudo pfctl -f /etc/pf.conf
 
 ## Add jibri service
+
 * There is a build script which deploys new jibri servers. (`build_jibri_server.yml`) 
 * Add a new server to `inventory/production`
   * **Important:** Please comment out the existing servers! From **both** `jibri_zh` and `jibri_ls`!

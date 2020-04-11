@@ -1,0 +1,15 @@
+server-name={{ inventory_hostname }}
+cert=/etc/letsencrypt/live/{{ inventory_hostname }}/cert.pem
+pkey=/etc/letsencrypt/live/{{ inventory_hostname }}/privkey.pem
+realm={{ inventory_hostname }}
+fingerprint
+listening-ip=0.0.0.0
+external-ip={{ ipify_public_ip }}
+listening-port=443
+min-port=10000
+max-port=20000
+log-file=/var/log/turnserver.log
+verbose
+
+static-auth-secret={{ prosody_turncredentials_secret }}
+

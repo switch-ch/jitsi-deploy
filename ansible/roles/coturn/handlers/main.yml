@@ -1,0 +1,8 @@
+---
+# handlers for coturn service
+
+- name: restart coturn
+  service:
+    name: coturn
+    state: restarted
+

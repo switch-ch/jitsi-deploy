@@ -44,3 +44,17 @@
       when: not ansible_check_mode
     - role: jibri
       tags: jibri
+
+- name: Configure Coturn
+  hosts: coturn
+  become: yes
+
+  roles:
+    - role: users
+      when: not ansible_check_mode
+    - role: certbot
+      tags: coturn
+    - role: coturn
+      tags: coturn
+    - role: site24x7
+      tags: coturn

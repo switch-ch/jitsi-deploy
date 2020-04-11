@@ -3,13 +3,16 @@ plugin_paths = { "/usr/share/jitsi-meet/prosody-plugins/" }
 -- domain mapper options, must at least have domain base set to use the mapper
 muc_mapper_domain_base = "{{ jitsi_fqdn }}";
 
+{% if groups['coturn'][0] %}
 turncredentials_secret = "{{ prosody_turncredentials_secret }}";
-
+turncredentials_port = 443;
+turncredentials_ttl = 86400;
 turncredentials = {
-  { type = "stun", host = "{{ jitsi_fqdn }}", port = "443" },
-  { type = "turn", host = "{{ jitsi_fqdn }}", port = "443", transport = "udp" },
-  { type = "turns", host = "{{ jitsi_fqdn }}", port = "443", transport = "tcp" }
+  { type = "stun", host = "{{ hostvars[groups['coturn'][0]].inventory_hostname }}", port = "443" },
+  { type = "turn", host = "{{ hostvars[groups['coturn'][0]].inventory_hostname }}", port = "443", transport = "udp" },
+  { type = "turns", host = "{{ hostvars[groups['coturn'][0]].inventory_hostname }}", port = "443", transport = "tcp" }
 };
+{% endif %}
 
 cross_domain_bosh = false;
 consider_bosh_secure = true;

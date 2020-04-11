@@ -10,3 +10,6 @@
   version: master
   name: jitsi-deploy-vars
 
+- src: https://github.com/geerlingguy/ansible-role-certbot.git
+  scm: git
+  name: certbot

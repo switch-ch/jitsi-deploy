@@ -1,0 +1,78 @@
+---
+###
+# * Please check the vars
+# * Comment out the existing coturn server in the inventory file (to speed up the installation)
+# * Source your openstack project credentials
+# * Run the playbook:
+#     ansible-playbook build_coturn_servers.yml -D
+###
+
+- name: Create and launch coturn VM
+  hosts: localhost
+  vars:
+    jitsi_coturn_vm_flavor: "c1.xlarge" # 8 VCPU / 8GB RAM
+    jitsi_coturn_ssh_key: "jcf"
+    jitsi_coturn_vm_network: "switch-net"
+    jitsi_coturn_vm_image: "Ubuntu Bionic 18.04 (SWITCHengines)"
+    jitsi_coturn_volume_type: "ceph-standard"
+    jitsi_coturn_volume_size: "20"
+    jitsi_coturn_auto_ip: "yes"
+    jitsi_coturn_secgroups:
+      - "SSH"
+      - "jitsi-coturn"
+    jitsi_coturn_security_groups:
+      - name: "SSH"
+        rules:
+          - { proto: tcp, port_min: 22, port_max: 22, type: IPv6, prefix: "::/0"}
+          - { proto: tcp, port_min: 22, port_max: 22, type: IPv4, prefix: "0.0.0.0/0"}
+      - name: "jitsi-coturn"
+        rules:
+          - { proto: tcp, port_min: 443, port_max: 443, type: IPv6, prefix: "::/0"}
+          - { proto: udp, port_min: 443, port_max: 443, type: IPv6, prefix: "::/0"}
+          - { proto: tcp, port_min: 443, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: udp, port_min: 443, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: tcp, port_min: 80, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: udp, port_min: 10000, port_max: 20000, type: IPv6, prefix: "::/0", state: absent}
+          - { proto: udp, port_min: 10000, port_max: 20000, type: IPv4, prefix: "0.0.0.0/0", state: absent}
+          - { proto: icmp, type: IPv6, prefix: "::/0", state: absent }
+          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0", state: absent }
+          - { proto: icmp, type: IPv6, prefix: "2001:620::/48" } # SWITCH LAN IPv6
+          - { proto: icmp, type: IPv4, prefix: "130.59.0.0/16" } # SWITCH LAN IPv4
+          - { proto: icmp, type: IPv4, prefix: "86.119.0.0/16" } # SWITCHengines LAN IPv4
+
+  tasks:
+  - name: Create security groups
+    os_security_group:
+      state: present
+      name: "{{ item.name }}"
+    loop: "{{ jitsi_coturn_security_groups }}"
+    tags:
+      - security_group
+
+  - name: Add rules
+    os_security_group_rule:
+      security_group: "{{ item.0.name }}"
+      protocol: "{{ item.1.proto }}"
+      port_range_min: "{{ item.1.port_min }}"
+      port_range_max: "{{ item.1.port_max }}"
+      ethertype: "{{ item.1.type }}"
+      remote_ip_prefix: "{{ item.1.prefix }}"
+    when: item.1.proto == "tcp" or item.1.proto == "udp"
+    loop: "{{ lookup('subelements', jitsi_coturn_security_groups, 'rules') }}"
+    tags:
+      - security_group
+
+  - name: Add rules
+    os_security_group_rule:
+      security_group: "{{ item.0.name }}"
+      protocol: "{{ item.1.proto }}"
+      ethertype: "{{ item.1.type }}"
+      remote_ip_prefix: "{{ item.1.prefix }}"
+    when: item.1.proto == "icmp"
+    loop: "{{ lookup('subelements', jitsi_coturn_security_groups, 'rules') }}"
+    tags:
+      - security_group
+
+  - name: Create all Coturn Servers
+    include_tasks: start_coturn_servers.yml
+    loop: "{{ groups['coturn'] }}"

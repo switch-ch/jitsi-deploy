@@ -1,0 +1,24 @@
+---
+
+- name: Install coturn
+  apt:
+    name: coturn
+    state: present
+    update_cache: yes
+
+- name: set startup as daemon
+  lineinfile:
+    path: /etc/default/coturn
+    line: "TURNSERVER_ENABLED=1"
+    regexp: "^TURNSERVER_ENABLED=1"
+    state: present
+    backup: yes
+
+- name: add coturn config
+  tags:
+    - conf
+  template:
+    src: turnserver.conf.j2
+    dest: /etc/turnserver.conf
+    mode: 0644
+  notify: restart coturn

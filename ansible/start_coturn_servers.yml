@@ -1,0 +1,33 @@
+---
+- debug: msg="Create {{ item.split('.')[0] }}"
+
+- name: Create root volume
+  os_volume:
+      display_name: "{{ item.split('.')[0] | lower }}-root"
+      image: "{{ jitsi_coturn_vm_image }}"
+      volume_type: "{{ jitsi_coturn_volume_type }}"
+      size: "{{ jitsi_coturn_volume_size }}"
+
+- name: "Launch Coturn VM and generate IPv4"
+  os_server:
+      auto_ip: "{{ jitsi_coturn_auto_ip }}"
+      boot_volume: "{{ item.split('.')[0] | lower }}-root"
+      flavor: "{{ jitsi_coturn_vm_flavor }}"
+      key_name: "{{ jitsi_coturn_ssh_key }}"
+      name: "{{ item.split('.')[0] | lower }}"
+      state: present
+      nics:
+      - net-name: "{{ jitsi_coturn_vm_network }}"
+      security_groups: "{{ jitsi_coturn_secgroups }}"
+      wait: yes
+  register: coturn
+  when: not ansible_check_mode
+
+- debug:
+    msg:
+      - "Server IPv4: {{ coturn.openstack.public_v4 }}"
+      - "Server IPv6: {{ coturn.openstack.public_v6 }} "
+      - "Coturn IPv4: {{ coturn.openstack.public_v4 }}"
+      - "Add hosts IPv4 to inventory: {{ coturn.openstack.name }}.meet.switch.ch ansible_host={{ coturn.openstack.public_v4 }}"
+      - "Call: ansible-playbook -i inventory/production main.yml --limit {{ coturn.openstack.name }}.meet.switch.ch"
+  when: not ansible_check_mode
