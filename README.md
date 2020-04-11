@@ -143,6 +143,8 @@ The `switch-net` were add to the `videobridges.meet.switch.ch` project in ZH and
 
 #### Testing STUN/TURN
 
+*NB*: Be sure to test this while NOT on the VPN.
+
 To test if STUN/TURN is working, open a conference in three tabs of the browser and disable outgoing UDP packets
 to port 10000. On Mac OSX:
 
@@ -154,7 +156,7 @@ to port 10000. On Mac OSX:
 If STUN/TURN works, the images of the two "remote" participants (i.e. the other browser tabs) should continue to show
 video. In addition the note `(stun)` is added in the `Show More` information of the network data.
 
-If it doesn't work, the remote particpants will show no video (and have no audio obviously).
+If it doesn't work, the remote participants will show no video (and have no audio obviously).
 
 To display information about `pf`
     
@@ -169,6 +171,7 @@ To reset the firewall
     $ sudo pfctl -f /etc/pf.conf
 
 ## Add jibri service
+
 * There is a build script which deploys new jibri servers. (`build_jibri_server.yml`) 
 * Add a new server to `inventory/production`
   * **Important:** Please comment out the existing servers! From **both** `jibri_zh` and `jibri_ls`!

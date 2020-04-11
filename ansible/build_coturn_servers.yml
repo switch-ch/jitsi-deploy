@@ -32,8 +32,8 @@
           - { proto: tcp, port_min: 443, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
           - { proto: udp, port_min: 443, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
           - { proto: tcp, port_min: 80, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
-          - { proto: udp, port_min: 10000, port_max: 20000, type: IPv6, prefix: "::/0"}
-          - { proto: udp, port_min: 10000, port_max: 20000, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: udp, port_min: 10000, port_max: 20000, type: IPv6, prefix: "::/0", state: absent}
+          - { proto: udp, port_min: 10000, port_max: 20000, type: IPv4, prefix: "0.0.0.0/0", state: absent}
           - { proto: icmp, type: IPv6, prefix: "::/0", state: absent }
           - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0", state: absent }
           - { proto: icmp, type: IPv6, prefix: "2001:620::/48" } # SWITCH LAN IPv6
