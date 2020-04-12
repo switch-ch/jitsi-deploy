@@ -1,6 +1,6 @@
 org.ice4j.ice.harvest.DISABLE_AWS_HARVESTER=true
 org.jitsi.videobridge.DISABLE_TCP_HARVESTER=true
-{% if groups['coturn'][0] %}
+{% if 'coturn' in groups and groups['coturn'][0] %}
 org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES={{ hostvars[groups['coturn'][0]].inventory_hostname }}:443
 {% endif %}
 
