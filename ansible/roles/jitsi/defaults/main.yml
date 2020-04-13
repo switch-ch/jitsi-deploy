@@ -5,11 +5,10 @@
 jitsi_shib: true
 
 # select which version of Jitsi to install. Valid:
-#  `shib` (for the version from August 2019),
 #  `stable` for the latest stable release
 #  `nightly` for the latest nightly release
 
-jitsi_version: shib
+jitsi_version: nightly
 
 
 # The Debian package installation of jitsi-meet will generate secrets for the components.
@@ -78,12 +77,6 @@ jitsi_meet_debconf_settings:
     question: jitsi-meet/cert-path-crt
     value: "/etc/ssl/{{ jitsi_fqdn }}.crt"
     vtype: string
-
-jitsi_1908_packages:
-  - https://download.jitsi.org/jitsi/debian/jicofo_1.0-481-1_amd64.deb
-  - https://download.jitsi.org/jitsi/debian/jitsi-meet-web_1.0.3577-1_all.deb
-  - https://download.jitsi.org/jitsi/debian/jitsi-meet-prosody_1.0.3577-1_all.deb
-  - https://download.jitsi.org/jitsi/debian/jitsi-meet-web-config_1.0.3577-1_all.deb
 
 jitsi_packages:
   - jicofo

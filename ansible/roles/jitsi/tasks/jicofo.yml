@@ -24,7 +24,7 @@
   template:
     src: jicofo_sip-communicator.properties.j2
     dest: /etc/jitsi/jicofo/sip-communicator.properties
-    mode: 0644
+    mode: 0600
   notify: restart jicofo
 
 - name: cron to restart Jicofo nightly
