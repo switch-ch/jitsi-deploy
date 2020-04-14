@@ -1,0 +1,13 @@
+image: python:3-slim
+
+before_script:
+  - pip install ansible-lint
+  - ansible-lint --version
+
+stages:
+  - ansible-lint
+
+ansible-lint:
+  stage: ansible-lint
+  script:
+    - ansible-lint .
