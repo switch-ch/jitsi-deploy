@@ -13,4 +13,4 @@ ansible-lint:
     - docker
   script:
     - cd ansible
-    - ansible-lint .
+    - ansible-lint *.yml
