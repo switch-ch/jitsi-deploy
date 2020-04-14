@@ -28,6 +28,7 @@
 - name: Add welcomePage dynamic customization.
   blockinfile:
     path: /usr/share/jitsi-meet/static/welcomePageAdditionalContent.html
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
     block: |2
           <!-- Matomo -->
           <script>
