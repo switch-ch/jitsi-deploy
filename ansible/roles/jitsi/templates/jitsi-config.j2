@@ -180,20 +180,25 @@ var config = {
 {% if jibri_enable == true %}
   {% if jibri_recording == true %}
 
-    fileRecordingsEnabled: true, // If you want to enable file recording
+    // If you want to enable file recording
+    fileRecordingsEnabled: true,
+  {% if jitsi_meet_CustomBuildEnabled %}
 
     // (SWITCH) - Own settings
     fileStopRecordingsShowUrlEnabled: true,
     // fileStopRecordingsShowUrlEnabled: false, // Not recommended to enable because it leads to unnecessary publicS3 URLs.
     fileRecordingsBucketName: "streams-{{ inventory_hostname.split('.')[0] }}",
   {% endif %}
-
+  {% endif %}
   {% if jibri_streaming == true %}
 
-    liveStreamingEnabled: true, // If you want to enable live streaming
+    // If you want to enable live streaming
+    liveStreamingEnabled: true,
+  {% if jitsi_meet_CustomBuildEnabled %}
 
     // (SWITCH) - Own settings
     liveStreamAutoCompleteEnabled: true,
+  {% endif %}
   {% endif %}
 
     hiddenDomain: 'recorder.{{ jitsi_fqdn }}',
