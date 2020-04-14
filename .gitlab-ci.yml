@@ -12,4 +12,5 @@ ansible-lint:
   tags:
     - docker
   script:
+    - cd ansible
     - ansible-lint .
