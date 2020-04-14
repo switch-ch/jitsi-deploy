@@ -1,11 +1,39 @@
-image: python:3-slim
+variables:
+  TEST_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+  RELEASE_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
 
-before_script:
-  - pip install ansible-lint
-  - ansible-lint --version
+image: "docker:stable"
 
 stages:
+  - build
+  - release
   - ansible-lint
+
+before_script:
+  - "docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY"
+
+build:
+  stage: build
+  script:
+    - "docker build --pull --no-cache -t $TEST_IMAGE ."
+    - "docker push $TEST_IMAGE"
+  only:
+    changes:
+      - Dockerfile
+  tags:
+    - docker
+
+release:
+  stage: release
+  script:
+    - "docker pull $TEST_IMAGE || true"
+    - "docker tag $TEST_IMAGE $RELEASE_IMAGE"
+    - "docker push $RELEASE_IMAGE"
+  only:
+    - tags
+  tags:
+    - docker
+
 
 ansible-lint:
   stage: ansible-lint
