@@ -10,7 +10,6 @@
     path: /etc/apt/sources.list.d/jitsi_unstable.list
     state: absent
 
-
 - name: Determine repo strategy.
   set_fact:
     jitsi_strategy: "{{ 'unstable' if jitsi_version == 'nightly' else 'stable' }}"
@@ -29,8 +28,6 @@
     # Ansible will automatically add the ".list" suffix.
     filename: /etc/apt/sources.list.d/jitsi_meet
   with_dict: "{{ jitsi_meet_apt_repos }}"
-
-
 
 - name: Set debconf options for jitsi-meet.
   debconf:
@@ -53,15 +50,6 @@
     cache_valid_time: 3600
   when: jitsi_version != 'shib' and not videobridge_only
 
-#
-#- name: Install Jitsi Meet (full package)
-#  apt:
-#    name: jitsi-meet
-#    state: latest
-#    update_cache: yes
-#    cache_valid_time: 3600
-#  when: jitsi_version != 'shib' and not videobridge_only
-
 - name: Install Jitsi Videobridge
   apt:
     name: jitsi-videobridge2
@@ -69,13 +57,3 @@
     update_cache: yes
     cache_valid_time: 3600
   when: videobridge_only
-
-- name: Install Aug 19 version of Jitsi)
-  apt:
-    deb: "{{ item }}"
-    state: present
-    update_cache: yes
-    cache_valid_time: 3600
-  with_items: "{{ jitsi_1908_packages }}"
-  when: jitsi_version == 'shib' and not videobridge_only
-

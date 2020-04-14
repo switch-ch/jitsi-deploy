@@ -1,12 +1,53 @@
 ---
-
-- name: Jitsi | SWITCHspecific Welcome Page Additions
-  template:
-    src: welcomePageAdditionalContent.html.j2
-    dest: /usr/share/jitsi-meet/static/welcomePageAdditionalContent.html
-    mode: 0644
+# Copy the original files. (accordingly force:no)
+- name: Backup old jitsi-meet.
+  copy:
+    src: /usr/share/jitsi-meet
+    dest: "/usr/share/jitsi-meet-bkp-original"
+    force: no
+    remote_src: yes
   tags:
-    - conf
+    jitsi
+
+- name: Remove backuped jitsi-meet.
+  file:
+    path: /usr/share/jitsi-meet
+    state: absent
+  tags: jitsi
+
+- name: Copy SWITCH jitsi-meet build
+  unarchive:
+    src: jitsi-meet.tar.bz2
+    dest: /usr/share/
+    owner: root
+    group: root
+    creates: /usr/share/jitsi-meet
+  tags:
+    jitsi
+
+- name: Add welcomePage dynamic customization.
+  blockinfile:
+    path: /usr/share/jitsi-meet/static/welcomePageAdditionalContent.html
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    block: |2
+          <!-- Matomo -->
+          <script>
+            var _paq = _paq || [];
+            _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+            _paq.push(["setCookieDomain", "{{matomo_cookie_domain}}"]);
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+              var u="//{{matomo_server}}";
+              _paq.push(['setTrackerUrl', u+'piwik.php']);
+              _paq.push(['setSiteId', '{{matomo_site_id}}']);
+              var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+              g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+            })();
+          </script>
+          <!-- End Matomo Code -->
+    insertbefore: '^</template>'
+  when: matomo_enabled
 
 - name: jitsi | jitsi-meet config.js
   become: yes
@@ -37,21 +78,3 @@
   tags:
     - jitsi
     - conf
-
-- name: Jitsi | set SWITCHDesign
-  copy:
-    src: all.css
-    dest: /usr/share/jitsi-meet/css/all.css
-    mode: 0644
-  tags:
-    - jitsi
-    - webconf
-
-- name: Jitsi | Interface configuration
-  copy:
-    src: interface_config.js
-    dest: /usr/share/jitsi-meet/interface_config.js
-    mode: 0644
-  tags:
-    - jitsi
-    - webconf

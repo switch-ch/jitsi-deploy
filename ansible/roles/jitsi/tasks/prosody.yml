@@ -1,6 +1,5 @@
 ---
 
-
 - name: Configure signing key for prosody repository
   apt_key:
     url: "https://prosody.im/files/prosody-debian-packages.key"
@@ -12,8 +11,6 @@
     state: present
     filename: /etc/apt/sources.list.d/prosody
 
-
-
 - name: Install Prosody
   apt:
     name: prosody
@@ -21,7 +18,6 @@
     update_cache: yes
     cache_valid_time: 3600
   when: not videobridge_only
-
 
 - name: copy global prosdoy config temmplate
   template:
