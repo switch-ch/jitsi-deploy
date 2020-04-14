@@ -6,7 +6,7 @@
     dest: "/usr/share/jitsi-meet-bkp-original"
     force: no
     remote_src: yes
-  when: jitsi_version == 'SWITCH'
+  when: jitsi_meet_CustomBuildEnabled
   tags:
     jitsi
 
@@ -14,7 +14,7 @@
   file:
     path: /usr/share/jitsi-meet
     state: absent
-  when: jitsi_version == 'SWITCH'
+  when: jitsi_meet_CustomBuildEnabled
   tags: jitsi
 
 - name: Copy SWITCH jitsi-meet build
@@ -24,7 +24,7 @@
     owner: root
     group: root
     creates: /usr/share/jitsi-meet
-  when: jitsi_version == 'SWITCH'
+  when: jitsi_meet_CustomBuildEnabled
   tags:
     jitsi
 
@@ -50,14 +50,14 @@
           </script>
           <!-- End Matomo Code -->
     insertbefore: '^</template>'
-  when: matomo_enabled and jitsi_version == 'SWITCH'
+  when: matomo_enabled and jitsi_meet_CustomBuildEnabled
 
 - name: Jitsi | SWITCHspecific Welcome Page Additions
   template:
     src: welcomePageAdditionalContent.html.j2
     dest: /usr/share/jitsi-meet/static/welcomePageAdditionalContent.html
     mode: 0644
-  when: jitsi_version != 'SWITCH'
+  when: not jitsi_meet_CustomBuildEnabled
   tags:
     - conf
 
@@ -66,7 +66,7 @@
     src: all.css
     dest: /usr/share/jitsi-meet/css/all.css
     mode: 0644
-  when: jitsi_version != 'SWITCH'
+  when: not jitsi_meet_CustomBuildEnabled
   tags:
     - jitsi
     - webconf
@@ -76,7 +76,7 @@
     src: interface_config.js
     dest: /usr/share/jitsi-meet/interface_config.js
     mode: 0644
-  when: jitsi_version != 'SWITCH'
+  when: not jitsi_meet_CustomBuildEnabled
   tags:
     - jitsi
     - webconf
