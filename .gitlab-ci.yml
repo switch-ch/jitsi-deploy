@@ -9,5 +9,7 @@ stages:
 
 ansible-lint:
   stage: ansible-lint
+  tags:
+    - docker
   script:
     - ansible-lint .
