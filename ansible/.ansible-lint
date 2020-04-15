@@ -1,0 +1,5 @@
+exclude_paths:
+  - roles/users
+skip_list:
+  - '403' # check for "latest" packages - for now, that is OK
+  - '602' # this seems to be a big mess: https://github.com/ansible/ansible-lint/issues/457

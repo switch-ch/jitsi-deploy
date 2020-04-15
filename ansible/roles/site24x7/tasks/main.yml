@@ -16,18 +16,19 @@
     - site24x7
 
 - name : Install 64 bit Site24x7 agent in the server
-  shell: /opt/Site24x7_Linux_64bit.install -i -key={{ site24x7_device_key }} -installer=ansible
+  shell: /opt/Site24x7_Linux_64bit.install -i -key={{ site24x7_device_key }} -installer=ansible # noqa 305
   when: (ansible_machine == "x86_64" and site24x7_proxy == "NONE" and not installed.stat.exists)
   tags:
     - site24x7
 
 - name : Install 64 bit Site24x7 agent in the server
-  shell: /opt/Site24x7_Linux_64bit.install -i -key={{ site24x7_device_key }} -installer=ansible -proxy={{ site24x7_proxy }}
+  shell: /opt/Site24x7_Linux_64bit.install -i -key={{ site24x7_device_key }} -installer=ansible -proxy={{ site24x7_proxy }} # noqa 305
   when: (ansible_machine == "x86_64" and site24x7_proxy != "NONE" and not installed.stat.exists)
   tags:
     - site24x7
 
-- service: name=site24x7monagent state=restarted
+- name: Restart Monagent (x86_64)
+  service: name=site24x7monagent state=restarted
   when: ansible_machine == "x86_64" and not installed.stat.exists
   tags:
     - site24x7
@@ -42,18 +43,19 @@
     - site24x7
 
 - name : Install 32 bit Site24x7 agent in the server
-  shell: /opt/Site24x7_Linux_32bit.install -i -key={{ site24x7_device_key }} -installer=ansible
+  shell: /opt/Site24x7_Linux_32bit.install -i -key={{ site24x7_device_key }} -installer=ansible # noqa 305
   when: (ansible_machine == "i386" and site24x7_proxy == "NONE" and not installed.stat.exists)
   tags:
     -site24x7
 
 - name : Install 32 bit Site24x7 agent in the server
-  shell: /opt/Site24x7_Linux_32bit.install -i -key={{ site24x7_device_key }} -installer=ansible -proxy={{ site24x7_proxy }}
+  shell: /opt/Site24x7_Linux_32bit.install -i -key={{ site24x7_device_key }} -installer=ansible -proxy={{ site24x7_proxy }} # noqa 305
   when: (ansible_machine == "i386" and site24x7_proxy != "NONE" and not installed.stat.exists)
   tags:
     - site24x7
 
-- service: name=site24x7monagent state=restarted
+- name: Restart Monagent (i386)
+  service: name=site24x7monagent state=restarted
   when: ansible_machine == "i386" and not installed.stat.exists
   tags:
     - site24x7

@@ -40,7 +40,7 @@
       state: present
       name: "{{ item.name }}"
     loop: "{{ jitsi_vb_security_groups }}"
-    tags: 
+    tags:
       - security_group
 
   - name: Add rules
@@ -53,7 +53,7 @@
       remote_ip_prefix: "{{ item.1.prefix }}"
     when: item.1.proto == "tcp" or item.1.proto == "udp"
     loop: "{{ lookup('subelements', jitsi_vb_security_groups, 'rules') }}"
-    tags: 
+    tags:
       - security_group
 
   - name: Add rules
@@ -64,7 +64,7 @@
       remote_ip_prefix: "{{ item.1.prefix }}"
     when: item.1.proto == "icmp"
     loop: "{{ lookup('subelements', jitsi_vb_security_groups, 'rules') }}"
-    tags: 
+    tags:
       - security_group
 
   - name: Create all Videobridges
