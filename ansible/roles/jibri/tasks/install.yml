@@ -102,7 +102,7 @@
 
 - name: Install java-8
   apt:
-    name: "{{item}}"
+    name: "{{ item }}"
     state: present
   loop:
     - openjdk-8-jdk

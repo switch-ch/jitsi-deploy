@@ -6,7 +6,7 @@
       display_name: "{{ item.split('.')[0] | lower }}-root"
       image: "{{ stream_vm_image }}"
       volume_type: "{{ stream_vm_storage_type }}"
-      size: "{{stream_vm_storage_size}}"
+      size: "{{ stream_vm_storage_size }}"
 
 - name: "Launch Videobridge VM and generate IPv4"
   os_server:

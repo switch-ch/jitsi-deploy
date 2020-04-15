@@ -87,7 +87,7 @@
     - restart prosody
 
 - name: Generate SSL keypair for Prosody service.
-  shell: >
+  shell: > # noqa 306 (we assume that 'yes' does not fail
     yes '' | prosodyctl cert generate {{ jitsi_fqdn }}
   args:
     creates: /var/lib/prosody/{{ jitsi_fqdn }}.crt
@@ -96,7 +96,7 @@
     - restart prosody
 
 - name: Generate SSL keypair for Prosody auth service.
-  shell: >
+  shell: > # noqa 306 (we assume that 'yes' does not fail
     yes '' | prosodyctl cert generate auth.{{ jitsi_fqdn }}
   args:
     creates: /var/lib/prosody/auth.{{ jitsi_fqdn }}.crt
@@ -106,15 +106,15 @@
 
 - name: set file mode on certificates
   file:
-    path: "/var/lib/prosody/{{ jitsi_fqdn }}.crt"
+    path: "{{ item }}"
     owner: root
     group: prosody
     mode: '0640'
-  with_items:
-    - /var/lib/prosody/{{ jitsi_fqdn }}.crt
-    - /var/lib/prosody/{{ jitsi_fqdn }}.key
-    - /var/lib/prosody/auth.{{ jitsi_fqdn }}.crt
-    - /var/lib/prosody/auth.{{ jitsi_fqdn }}.key
+  loop:
+    - "/var/lib/prosody/{{ jitsi_fqdn }}.crt"
+    - "/var/lib/prosody/{{ jitsi_fqdn }}.key"
+    - "/var/lib/prosody/auth.{{ jitsi_fqdn }}.crt"
+    - "/var/lib/prosody/auth.{{ jitsi_fqdn }}.key"
 
 - name: Assure localhost ssl cert mode/owner
   file:
@@ -127,32 +127,16 @@
     - "/etc/prosody/certs/localhost.crt"
     - "/etc/prosody/certs/localhost.cnf"
 
-- name: symlink prosody certs
+- name: symlink prosody certs/keys
   file:
-    path: "/etc/prosody/certs/{{ jitsi_fqdn }}.crt"
+    path: "/etc/prosody/certs/{{ item }}"
     state: link
-    src:  "/var/lib/prosody/{{ jitsi_fqdn }}.crt"
-  notify: restart prosody
-
-- name: symlink prosody key
-  file:
-    path: "/etc/prosody/certs/{{ jitsi_fqdn }}.key"
-    state: link
-    src:  "/var/lib/prosody/{{ jitsi_fqdn }}.key"
-  notify: restart prosody
-
-- name: symlink prosody auth certs
-  file:
-    path: "/etc/prosody/certs/auth.{{ jitsi_fqdn }}.crt"
-    state: link
-    src:  "/var/lib/prosody/auth.{{ jitsi_fqdn }}.crt"
-  notify: restart prosody
-
-- name: symlink prosody auth key
-  file:
-    path: "/etc/prosody/certs/auth.{{ jitsi_fqdn }}.key"
-    state: link
-    src:  "/var/lib/prosody/auth.{{ jitsi_fqdn }}.key"
+    src: "/var/lib/prosody/{{ item }}"
+  loop:
+    - "{{ jitsi_fqdn }}.crt"
+    - "{{ jitsi_fqdn }}.key"
+    - "auth.{{ jitsi_fqdn }}.crt"
+    - "auth.{{ jitsi_fqdn }}.key"
   notify: restart prosody
 
 - name: symlink prosody auth certs to ca-certificates
@@ -160,10 +144,10 @@
     path: "/etc/prosody/certs/auth.{{ jitsi_fqdn }}.crt"
     state: link
     src:  "/usr/local/share/ca-certificates/auth.{{ jitsi_fqdn }}.crt"
-  notify: restart prosody
+  notify:
+    - restart prosody
+    - update-ca-certificates
 
-- name: update-ca-certificates
-  command: update-ca-certificates -f
 
 # Section to support jibri
 - name: Register jibri agent with Prosody service.

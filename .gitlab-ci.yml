@@ -1,0 +1,12 @@
+image: "cr.gitlab-int.switch.ch/petasolutions-switch-ch/docker-ansible-lint"
+
+stages:
+  - ansible-lint
+
+ansible-lint:
+  stage: ansible-lint
+  tags:
+    - docker
+  script:
+    - cd ansible
+    - ansible-lint *.yml

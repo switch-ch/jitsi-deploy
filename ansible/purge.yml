@@ -8,7 +8,7 @@
   become: yes
   tasks:
     - name: purge jitsi
-      shell: apt-get -y purge prosody jigasi jitsi-meet jitsi-meet-web-config jitsi-meet-prosody jitsi-meet-web jicofo jitsi-videobridge
+      shell: apt-get -y purge prosody jigasi jitsi-meet jitsi-meet-web-config jitsi-meet-prosody jitsi-meet-web jicofo jitsi-videobridge # noqa 301 303 305
     - name: purge prosody /etc/prosody
       file:
         dest: /etc/prosody
@@ -18,7 +18,7 @@
         dest: /var/lib/prosody
         state: absent
     - name: purge jitsi-meet /usr/share/jitsi-meet
-      file:
+      file: #
         dest: /usr/share/jitsi-meet
         state: absent
   tags:
@@ -30,7 +30,7 @@
   become: yes
   tasks:
     - name: purge jitsi
-      shell: apt-get -y purge jitsi-videobridge
+      shell: apt-get -y purge jitsi-videobridge # noqa 301 303 305
   tags:
     - jitsi
 
@@ -38,7 +38,7 @@
   hosts: jitsi
   become: yes
   tasks:
-    - name: purge log
+    - name: purge log # noqa 301
       shell: echo "" > /var/log/jitsi/jicofo.log
       tags:
         - jicofolog
@@ -48,6 +48,6 @@
   become: yes
   tasks:
     - name: purge nginx
-      shell: apt-get -y purge nginx
+      shell: apt-get -y purge nginx # noqa 301 303 305
   tags:
     - nginx

@@ -33,14 +33,14 @@
 - debug: msg={{ not ( conferences.json is defined and conferences.json['conferences'] == 0 ) }}
   when: conferences.json is defined
 
-- debug: msg={{ not ( conferences.json is defined and conferences.json['conferences'] == 0 ) and not ( colibristats.status is defined and colibristats.status != 200 )  }}
+- debug: msg={{ not ( conferences.json is defined and conferences.json['conferences'] == 0 ) and not ( colibristats.status is defined and colibristats.status != 200 )  }}  # noqa 204
   when: conferences.json is defined
 
 - name: Generate a Fail when not restarted
   fail:
     msg: "Videobridge server was not restarted! Configs not applied!"
   ignore_errors: yes
-  when: videobridge_only and ( not ( conferences.json is defined and conferences.json['conferences'] == 0 ) and not ( colibristats.status is defined and colibristats.status != 200 ) )
+  when: videobridge_only and ( not ( conferences.json is defined and conferences.json['conferences'] == 0 ) and not ( colibristats.status is defined and colibristats.status != 200 ) ) # noqa 204
 
 - name: add videobridge config
   become: yes
