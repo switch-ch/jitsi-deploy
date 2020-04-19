@@ -1,5 +1,6 @@
 ---
-
+- name: Get my public IP
+  ipify_facts:
 
 - name: Install jq
   apt:

@@ -6,6 +6,9 @@ org.jitsi.jicofo.auth.LOGOUT_URL=shibboleth:default
 org.jitsi.jicofo.BRIDGE_MUC=JvbBrewery@internal.auth.{{ jitsi_fqdn }}
 org.jitsi.jicofo.ALWAYS_TRUST_MODE_ENABLED=true
 
+# org.jitsi.jicofo.BridgeSelector.BRIDGE_SELECTION_STRATEGY=RegionBasedBridgeSelectionStrategy
+org.jitsi.jicofo.BridgeSelector.BRIDGE_SELECTION_STRATEGY=SplitBridgeSelectionStrategy
+
 {% if jibri_enable == true %}
 org.jitsi.jicofo.jibri.BREWERY=JibriBrewery@internal.auth.{{ jitsi_fqdn }}
 org.jitsi.jicofo.jibri.PENDING_TIMEOUT=90
