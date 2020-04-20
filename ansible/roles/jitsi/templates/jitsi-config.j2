@@ -188,9 +188,9 @@ var config = {
     fileRecordingsEnabled: true,
   {% if jitsi_meet_CustomBuildEnabled %}
 
-    // (SWITCH) - Own settings
+    // (SWITCH) - Shows the public URL on the StopRecordingDialog on start.
     fileStopRecordingsShowUrlEnabled: true,
-    // fileStopRecordingsShowUrlEnabled: false, // Not recommended to enable because it leads to unnecessary publicS3 URLs.
+    // (SWITCH) - S3 Bucket to store the recordings in.
     fileRecordingsBucketName: "streams-{{ inventory_hostname.split('.')[0] }}",
   {% endif %}
   {% endif %}
