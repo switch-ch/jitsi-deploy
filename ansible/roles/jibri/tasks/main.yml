@@ -23,6 +23,8 @@
     group: root
     mode: '0644'
   notify: Restart jibri
+  tags:
+    - jibri_config
 
 - name: Install upload packages
   apt:
@@ -40,6 +42,8 @@
     owner: root
     group: root
     mode: '0644'
+  tags:
+    - jibri_config
 
 - name: Add upload_streamfile.sh
   template:
@@ -48,6 +52,8 @@
     owner: root
     group: root
     mode: '0755'
+  tags:
+    - jibri_config
 
 - name: Add cronjob file
   template:
@@ -56,6 +62,8 @@
     mode: '0755'
     owner: root
     group: root
+  tags:
+    - jibri_config
 
 - name: Add cronjobs
   cron:
@@ -65,6 +73,20 @@
     job: "/usr/local/bin/remove_old_recordings.sh {{ item }} > /dev/null 2>&1"
   loop:
     - '/srv/recordings'
+  tags:
+    - jibri_config
+
+- name: cron to restart jibri nightly
+  cron:
+    name: restart jibri
+    hour: "3"
+    minute: "0"
+    user: root
+    job: "/usr/sbin/service jibri restart >> /var/log/jitsi/restart_jibri.log 2>&1"
+    cron_file: restart_jibri
+  tags:
+    - cron
+    - jibri_config
 
 - name: Enable jibri service
   service:
