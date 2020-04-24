@@ -31,6 +31,8 @@
           - { proto: tcp, port_min: 443, port_max: 443, type: IPv4, prefix: "0.0.0.0/0"}
           - { proto: udp, port_min: 10000, port_max: 10000, type: IPv6, prefix: "::/0"}
           - { proto: udp, port_min: 10000, port_max: 10000, type: IPv4, prefix: "0.0.0.0/0"}
+          - { proto: tcp, port_min: 4096, port_max: 4096, type: IPv4, prefix: "130.59.96.0/22"} # ZH
+          - { proto: tcp, port_min: 4096, port_max: 4096, type: IPv4, prefix: "130.59.208.0/22"} # LS
           - { proto: icmp, type: IPv6, prefix: "::/0"}
           - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0"}
 
