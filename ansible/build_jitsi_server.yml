@@ -22,6 +22,7 @@
     jitsi_vm_secgroups:
       - "SSH"
       - "jitsi-meet"
+      - "jitsi-jibri"
       - "http(s)"
       # This is only needed for test.meet.switch.ch (in jitsi-frontends)
       # - "jitsi-meet-test"
@@ -47,6 +48,11 @@
           - { proto: icmp, type: IPv6, prefix: "2001:620::/48" } # SWITCH LAN IPv6
           - { proto: icmp, type: IPv4, prefix: "130.59.0.0/16" } # SWITCH LAN IPv4
           - { proto: icmp, type: IPv4, prefix: "86.119.0.0/16" } # SWITCHengines LAN IPv4
+
+      - name: "jitsi-jibri"
+        rules:
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:5ca1:1f0::/64"} # ZH
+          - { proto: tcp, port_min: 5222, port_max: 5222, type: IPv6, prefix: "2001:620:5ca1:2f0::/64"} # LS
 
       # This is only needed for test.meet.switch.ch (in jitsi-frontends)
       # - name: "jitsi-meet-test"
