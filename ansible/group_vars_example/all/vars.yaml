@@ -11,6 +11,13 @@ site24x7_proxy: NONE
 
 jitsi_last_n: 4
 
+# enable octo
+# this will split conferences across multiple video bridges
+# only setup to deal with one region
+jitsi_octo_enable: false
+jitsi_octo_region: switch
+
+
 # Which version of Jitsi to use
 jitsi_version: nightly
 
