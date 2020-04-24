@@ -76,6 +76,18 @@
   tags:
     - jibri_config
 
+- name: cron to restart jibri nightly
+  cron:
+    name: restart jibri
+    hour: "3"
+    minute: "0"
+    user: root
+    job: "/usr/sbin/service jibri restart >> /var/log/jitsi/restart_jibri.log 2>&1"
+    cron_file: restart_jibri
+  tags:
+    - cron
+    - jibri_config
+
 - name: Enable jibri service
   service:
     name: jibri
