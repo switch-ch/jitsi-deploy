@@ -8,6 +8,15 @@ org.jitsi.jicofo.ALWAYS_TRUST_MODE_ENABLED=true
 
 org.jitsi.videobridge.ENABLE_REST_SHUTDOWN=true
 
+{% if jitsi_octo_enabled %}
+# Octo configuration
+org.jitsi.videobridge.octo.BIND_ADDRESS={{ ipify_public_ip }}
+org.jitsi.videobridge.octo.PUBLIC_ADDRESS={{ ipify_public_ip }}
+org.jitsi.videobridge.octo.BIND_PORT=4096
+org.jitsi.videobridge.REGION={{ jitsi_octo_region }}
+{% endif %}
+
+
 {% if callstats_io_appid %}
 # the callstats credentials
 io.callstats.sdk.CallStats.appId={{ callstats_io_appid }}

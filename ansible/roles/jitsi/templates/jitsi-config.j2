@@ -44,6 +44,11 @@ var config = {
     //
 
     testing: {
+        {% if jitsi_octo_enabled %}
+        octo: {
+                probability: 1
+            },
+        {% endif %}
         // Enables experimental simulcast support on Firefox.
         enableFirefoxSimulcast: false,
 
@@ -57,6 +62,7 @@ var config = {
         // Disables the auto-play behavior of *all* newly created video element.
         // This is useful when the client runs on a host with limited resources.
         // noAutoPlayVideo: false
+
     },
 
     // Disables ICE/UDP by filtering out local and remote UDP candidates in
@@ -440,7 +446,10 @@ var config = {
     deploymentInfo: {
         // shard: "shard1",
         // region: "europe",
-        // userRegion: "asia"
+        // userRegion: ""
+        {% if jitsi_octo_enabled %}
+        userRegion: "{{ jitsi_octo_region }}"
+        {% endif %}
     },
 
     // Decides whether the start/stop recording audio notifications should play on record.

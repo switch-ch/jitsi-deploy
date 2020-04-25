@@ -9,7 +9,7 @@
   tasks:
     - name: "restart bridges"
       service:
-        name: jitsi-videobridge
+        name: jitsi-videobridge2
         state: restarted
 
 
