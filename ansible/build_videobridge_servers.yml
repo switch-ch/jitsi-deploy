@@ -19,7 +19,6 @@
     jitsi_vb_auto_ip: "yes"
     jitsi_vb_secgroups:
       - "SSH"
-      - "icmp"
       - "jitsi-videobridge"
     jitsi_vb_security_groups:
       - name: "SSH"
