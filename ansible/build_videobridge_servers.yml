@@ -19,6 +19,7 @@
     jitsi_vb_auto_ip: "yes"
     jitsi_vb_secgroups:
       - "SSH"
+      - "icmp"
       - "jitsi-videobridge"
     jitsi_vb_security_groups:
       - name: "SSH"
@@ -33,8 +34,15 @@
           - { proto: udp, port_min: 10000, port_max: 10000, type: IPv4, prefix: "0.0.0.0/0"}
           - { proto: tcp, port_min: 4096, port_max: 4096, type: IPv4, prefix: "130.59.96.0/22"} # ZH
           - { proto: tcp, port_min: 4096, port_max: 4096, type: IPv4, prefix: "130.59.208.0/22"} # LS
-          - { proto: icmp, type: IPv6, prefix: "::/0"}
-          - { proto: icmp, type: IPv4, prefix: "0.0.0.0/0"}
+          #- { proto: icmp, type: IPv6, prefix: "::/0", state: "absent"}
+          #- { proto: icmp, type: IPv4, prefix: "0.0.0.0/0", state: "absent"}
+          - { proto: icmp, type: IPv6, prefix: "2001:620:0:5000::/64"} # ZH switch-net
+          - { proto: icmp, type: IPv6, prefix: "2001:620:0:6000::/64"} # LS switch-net
+          - { proto: icmp, type: IPv6, prefix: "2001:620:5ca1:1f0::/64"} # ZH private
+          - { proto: icmp, type: IPv6, prefix: "2001:620:5ca1:2f0::/64"} # LS private
+          - { proto: icmp, type: IPv4, prefix: "130.59.96.0/22"} # ZH
+          - { proto: icmp, type: IPv4, prefix: "130.59.208.0/22"} # LS
+          - { proto: icmp, type: IPv4, prefix: "86.119.0.0/16"} # ZH
 
   tasks:
   - name: Create security groups

@@ -19,7 +19,7 @@
   tags:
     - nginx
   apt:
-    name: nginx
+    name: nginx=1.17.9-1~bionic
     force_apt_get: yes
 
 - name: nginx | Creates directory
