@@ -42,8 +42,19 @@ VirtualHost "{{ jitsi_fqdn }}"
             "speakerstats";
             "turncredentials";
             "conference_duration";
+            {% if jitsi_prejoinPageEnabled %}
+
+            "muc_lobby_rooms";
+            {% endif %}
+
         }
         c2s_require_encryption = false
+
+        {% if jitsi_prejoinPageEnabled %}
+
+        lobby_muc = "lobby.{{ jitsi_fqdn }}"
+        main_muc = "conference.{{ jitsi_fqdn }}"
+        {% endif %}
 
 Component "conference.{{ jitsi_fqdn }}" "muc"
     storage = "memory"
@@ -88,3 +99,13 @@ VirtualHost "recorder.{{ jitsi_fqdn }}"
     }
     authentication = "internal_plain"
     c2s_require_encryption = false
+
+{% if jitsi_prejoinPageEnabled %}
+
+Component "lobbyrooms.{{ jitsi_fqdn }}" "muc"
+    storage = "memory"
+    muc_room_cache_size = 1000
+    restrict_room_creation = true
+    muc_room_locking = false
+    muc_room_default_public_jids = true
+{% endif %}

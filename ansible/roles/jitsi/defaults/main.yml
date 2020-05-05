@@ -84,6 +84,9 @@ jitsi_packages:
   - jitsi-meet-prosody
   - jitsi-meet-web-config
 
+# Jitsi preJoinPage
+jitsi_prejoinPageEnabled: false
+
 # jitsi-meet SWITCH custom build
 jitsi_meet_CustomBuildEnabled: false
 
