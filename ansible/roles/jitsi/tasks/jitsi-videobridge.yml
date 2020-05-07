@@ -70,6 +70,7 @@
     line: "VIDEOBRIDGE_MAX_MEMORY=6144m"
     insertafter: "^# VIDEOBRIDGE_MAX_MEMORY=3072m"
     path: /usr/share/jitsi-videobridge/lib/videobridge.rc
+    # state: absent
   notify: restart jitsi-videobridge
   when: videobridge_only
 

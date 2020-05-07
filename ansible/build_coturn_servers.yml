@@ -75,4 +75,4 @@
 
   - name: Create all Coturn Servers
     include_tasks: start_coturn_servers.yml
-    loop: "{{ groups['coturn'] }}"
+    loop: "{{ groups['coturn_server'] }}"
