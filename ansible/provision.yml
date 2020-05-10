@@ -46,7 +46,7 @@
       tags: jibri
 
 - name: Configure Coturn
-  hosts: coturn
+  hosts: coturn_server
   become: yes
 
   roles:
