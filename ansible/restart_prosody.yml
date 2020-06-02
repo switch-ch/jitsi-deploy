@@ -1,0 +1,15 @@
+# Check health of Vidobridges
+#
+#     ansible-galaxy install -fr roles/requirements.yml
+#
+---
+- name: restart prosody
+  hosts: jitsi
+  become: yes
+  tasks:
+    - name: "restart prosody"
+      service:
+        name: prosody
+        state: restarted
+
+
