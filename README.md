@@ -2,7 +2,7 @@
 
 22.3.2020
 
-SWITCH is the Swiss National Research and Network (NREN) and provides various IT services
+SWITCH is the Swiss National Research and Education Network (NREN) and provides various IT services
 to Swiss higher education institutions. This ansible playbook is used to set up
 a cluster of individual Jitsi Frontend servers (one for each insitiution) that share a
 pool of videobridges. This is a brand new service that was started during the Covid19 crisis
